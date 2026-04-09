@@ -13,7 +13,7 @@ jobs:
       - uses: actions/setup-node@v4
         with: {node-version: '20'}
       - run: npm install
-      - run: npm run build
+      - run: npm run ci-cd
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
