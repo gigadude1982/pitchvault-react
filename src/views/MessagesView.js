@@ -1,127 +1,22 @@
 import React, { useState, useRef, useEffect } from 'react';
-
-const CHATS = [
-  {
-    id: 0,
-    name: 'Jordan Reeves',
-    init: 'JR',
-    campaign: 'Summer Launch · TikTok Video',
-    status: 'In Review',
-    statusClass: 'status-review',
-    unread: true,
-    revisions: 1,
-    maxRevisions: 3,
-    preview: 'Uploaded the final cut...',
-    messages: [
-      {
-        from: 'creator',
-        text: 'Hey! I just uploaded the final cut for your review. Really happy with how it turned out.',
-        time: '2:14 PM',
-      },
-      {
-        from: 'brand',
-        text: 'Love the hook in the first 3 seconds. One ask: can you add a CTA overlay at the end?',
-        time: '2:31 PM',
-      },
-      {
-        from: 'creator',
-        text: "Absolutely, I'll have that revision ready within the hour.",
-        time: '2:33 PM',
-      },
-      {
-        from: 'creator',
-        file: 'final_cut_v2.mp4',
-        fileType: 'MP4',
-        delivery: false,
-        time: '3:07 PM',
-      },
-    ],
-  },
-  {
-    id: 1,
-    name: 'Maya Chen',
-    init: 'MC',
-    campaign: 'Fall Collection · UGC Ad',
-    status: 'Active',
-    statusClass: 'status-active',
-    unread: false,
-    revisions: 0,
-    maxRevisions: 3,
-    preview: 'Can I adjust the deadline?',
-    messages: [
-      {
-        from: 'brand',
-        text: 'Hi Maya! Excited for this one. Brief is attached.',
-        time: 'Yesterday',
-      },
-      {
-        from: 'creator',
-        text: 'Thank you! Can I adjust the deadline by 1 day? Want the lighting to be perfect.',
-        time: 'Yesterday',
-      },
-      { from: 'brand', text: 'No problem — take the time you need.', time: 'Yesterday' },
-    ],
-  },
-  {
-    id: 2,
-    name: 'Caleb St. James',
-    init: 'CS',
-    campaign: 'Faith Community · Lifestyle',
-    status: 'In Review',
-    statusClass: 'status-review',
-    unread: false,
-    revisions: 2,
-    maxRevisions: 3,
-    preview: 'Revision 2 is ready',
-    messages: [
-      {
-        from: 'creator',
-        text: 'Revision 2 is ready! Incorporated all your feedback from round one.',
-        time: '10:15 AM',
-      },
-      {
-        from: 'brand',
-        text: 'This looks excellent. Sending for final approval now.',
-        time: '11:00 AM',
-      },
-      {
-        from: 'creator',
-        file: 'lifestyle_rev2.mp4',
-        fileType: 'MP4',
-        delivery: true,
-        time: '11:04 AM',
-      },
-    ],
-  },
-  {
-    id: 3,
-    name: 'Sofia Voss',
-    init: 'SV',
-    campaign: 'TechDrop Launch · TikTok',
-    status: 'Active',
-    statusClass: 'status-active',
-    unread: false,
-    revisions: 0,
-    maxRevisions: 3,
-    preview: 'Excited to get started...',
-    messages: [
-      {
-        from: 'brand',
-        text: 'Sofia, product sample is on its way. Let us know when it arrives!',
-        time: 'Mon',
-      },
-      { from: 'creator', text: 'Sounds great, excited to get started on this one!', time: 'Mon' },
-    ],
-  },
-];
+import { db } from '../services/db';
 
 export default function MessagesView() {
-  const [activeChatId, setActiveChatId] = useState(0);
-  const [chats, setChats] = useState(CHATS);
+  const [chats, setChats] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeChatId, setActiveChatId] = useState(null);
   const [inputVal, setInputVal] = useState('');
 
   const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    db.getChats().then((data) => {
+      setChats(data);
+      if (data.length > 0) setActiveChatId(data[0].id);
+      setLoading(false);
+    });
+  }, []);
 
   const activeChat = chats.find((c) => c.id === activeChatId);
 
@@ -132,14 +27,14 @@ export default function MessagesView() {
   const sendMessage = () => {
     const text = inputVal.trim();
     if (!text) return;
+    const msg = { from: 'brand', text, time: 'Now' };
     setChats((prev) =>
       prev.map((c) =>
-        c.id === activeChatId
-          ? { ...c, messages: [...c.messages, { from: 'brand', text, time: 'Now' }], preview: text }
-          : c
+        c.id === activeChatId ? { ...c, messages: [...c.messages, msg], preview: text } : c
       )
     );
     setInputVal('');
+    db.addMessage(activeChatId, msg);
   };
 
   const handleKey = (e) => {
@@ -150,33 +45,50 @@ export default function MessagesView() {
     const file = e.target.files[0];
     if (!file) return;
     const ext = file.name.split('.').pop().toUpperCase();
+    const newRevisions = (activeChat?.revisions ?? 0) + 1;
+    const msg = { from: 'brand', file: file.name, fileType: ext, delivery: false, time: 'Now' };
     setChats((prev) =>
       prev.map((c) =>
         c.id === activeChatId
           ? {
               ...c,
-              revisions: c.revisions + 1,
-              messages: [
-                ...c.messages,
-                { from: 'brand', file: file.name, fileType: ext, delivery: false, time: 'Now' },
-              ],
+              revisions: newRevisions,
+              messages: [...c.messages, msg],
               preview: `Uploaded ${file.name}`,
             }
           : c
       )
     );
     e.target.value = '';
+    db.addMessage(activeChatId, msg, newRevisions);
   };
 
-  const markFinalDelivery = (msgIndex) => {
+  const markFinalDelivery = (messageId) => {
     setChats((prev) =>
       prev.map((c) => {
         if (c.id !== activeChatId) return c;
-        const messages = c.messages.map((m, i) => (i === msgIndex ? { ...m, delivery: true } : m));
+        const messages = c.messages.map((m) => (m.id === messageId ? { ...m, delivery: true } : m));
         return { ...c, messages, status: 'Delivered', statusClass: 'status-delivered' };
       })
     );
+    db.markFinalDelivery(messageId, activeChatId);
   };
+
+  if (loading || !activeChat)
+    return (
+      <div
+        className="view"
+        style={{
+          textAlign: 'center',
+          padding: '60px 0',
+          fontFamily: 'var(--cinzel)',
+          color: 'var(--text-muted)',
+          letterSpacing: 3,
+        }}
+      >
+        LOADING...
+      </div>
+    );
 
   const revisionsLeft = activeChat.maxRevisions - activeChat.revisions;
 
@@ -229,7 +141,7 @@ export default function MessagesView() {
             {activeChat.messages.map((m, i) => {
               if (m.file)
                 return (
-                  <div className={`msg from-${m.from}`} key={i}>
+                  <div className={`msg from-${m.from}`} key={m.id ?? i}>
                     <div className="file-bubble">
                       <div className="file-icon">{m.fileType}</div>
                       <div style={{ flex: 1 }}>
@@ -243,7 +155,7 @@ export default function MessagesView() {
                         </div>
                       </div>
                       {!m.delivery && m.from === 'creator' && (
-                        <button className="delivery-btn" onClick={() => markFinalDelivery(i)}>
+                        <button className="delivery-btn" onClick={() => markFinalDelivery(m.id)}>
                           Mark Final
                         </button>
                       )}
@@ -253,7 +165,7 @@ export default function MessagesView() {
                   </div>
                 );
               return (
-                <div className={`msg from-${m.from}`} key={i}>
+                <div className={`msg from-${m.from}`} key={m.id ?? i}>
                   <div className="msg-bubble">{m.text}</div>
                   <div className="msg-meta">{m.time}</div>
                 </div>

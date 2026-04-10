@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useParams, useNavigate } from '@tanstack/react-router';
-import { CREATORS } from '../data/creators';
 import { useToast } from '../ToastContext';
+import { db } from '../services/db';
 
 function Stars({ rating }) {
   return (
@@ -12,42 +12,72 @@ function Stars({ rating }) {
           ★
         </span>
       ))}
-      <span className="stars-score">{rating.toFixed(1)}</span>
+      <span className="stars-score">{Number(rating).toFixed(1)}</span>
     </div>
   );
 }
 
-Stars.propTypes = {
-  rating: PropTypes.number.isRequired,
-};
+Stars.propTypes = { rating: PropTypes.number.isRequired };
 
 export default function CreatorProfileView() {
   const { id } = useParams({ strict: false });
   const navigate = useNavigate();
   const showToast = useToast();
-  const creator = CREATORS[parseInt(id)] ?? CREATORS[0];
 
+  const [creator, setCreator] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewText, setReviewText] = useState('');
-  const [reviews, setReviews] = useState(creator.reviews);
+
+  useEffect(() => {
+    db.getCreatorById(parseInt(id)).then((data) => {
+      if (data) {
+        setCreator(data);
+        setReviews(data.reviews ?? []);
+      }
+      setLoading(false);
+    });
+  }, [id]);
 
   const submitReview = () => {
     if (!reviewText.trim()) return;
-    setReviews((prev) => [
-      { brand: 'Your Brand', rating: reviewRating, text: reviewText.trim(), date: 'Just now' },
-      ...prev,
-    ]);
+    const newReview = {
+      brand: 'Your Brand',
+      rating: reviewRating,
+      text: reviewText.trim(),
+      date: 'Just now',
+    };
+    setReviews((prev) => [newReview, ...prev]);
+    db.addReview(parseInt(id), newReview);
     setReviewText('');
     setShowReviewForm(false);
     showToast('Review submitted');
   };
 
-  const avgRating = (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1);
+  if (loading || !creator)
+    return (
+      <div
+        className="view"
+        style={{
+          textAlign: 'center',
+          padding: '60px 0',
+          fontFamily: 'var(--cinzel)',
+          color: 'var(--text-muted)',
+          letterSpacing: 3,
+        }}
+      >
+        LOADING...
+      </div>
+    );
+
+  const avgRating = reviews.length
+    ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)
+    : Number(creator.rating).toFixed(1);
 
   return (
     <div className="view">
-      {/* Back */}
       <button
         className="btn-outline"
         style={{ marginBottom: 20 }}
@@ -56,7 +86,6 @@ export default function CreatorProfileView() {
         ← Back to Vault
       </button>
 
-      {/* Hero */}
       <div className="panel profile-hero">
         <div className="profile-video-thumb" style={{ background: creator.bg }}>
           <span style={{ fontSize: 96 }}>{creator.emoji}</span>
@@ -78,8 +107,10 @@ export default function CreatorProfileView() {
             style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10, marginTop: 10 }}
           >
             <span className="niche-tag primary">{creator.niche}</span>
-            {creator.tags.includes('Faith-Based') && <span className="niche-tag faith">Faith</span>}
-            {creator.tags
+            {(creator.tags || []).includes('Faith-Based') && (
+              <span className="niche-tag faith">Faith</span>
+            )}
+            {(creator.tags || [])
               .filter((t) => t !== 'Faith-Based')
               .map((t) => (
                 <span className="niche-tag" key={t}>
@@ -134,7 +165,6 @@ export default function CreatorProfileView() {
         <span className="divider-gem">◆</span>
       </div>
 
-      {/* Stats */}
       <div className="profile-stats-row">
         {[
           { label: 'Reach', value: creator.reach },
@@ -149,12 +179,11 @@ export default function CreatorProfileView() {
         ))}
       </div>
 
-      {/* Portfolio */}
       <div className="section-header" style={{ marginTop: 32, marginBottom: 16 }}>
         Portfolio
       </div>
       <div className="portfolio-grid">
-        {creator.portfolio.map((emoji, i) => (
+        {(creator.portfolio || []).map((emoji, i) => (
           <div className="portfolio-item" key={i} style={{ background: creator.bg }}>
             <span style={{ fontSize: 48 }}>{emoji}</span>
             <div className="play-btn" style={{ width: 32, height: 32, fontSize: 18 }}>
@@ -164,12 +193,11 @@ export default function CreatorProfileView() {
         ))}
       </div>
 
-      {/* Past Brand Work */}
       <div className="section-header" style={{ marginTop: 32, marginBottom: 16 }}>
         Past Brand Work
       </div>
       <div className="panel">
-        {creator.brands.map((brand, i) => (
+        {(creator.brands || []).map((brand, i) => (
           <div
             key={brand}
             className="brand-work-row"
@@ -201,7 +229,6 @@ export default function CreatorProfileView() {
         ))}
       </div>
 
-      {/* Reviews */}
       <div
         style={{
           display: 'flex',
@@ -260,7 +287,7 @@ export default function CreatorProfileView() {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {reviews.map((r, i) => (
-          <div className="review-card" key={i}>
+          <div className="review-card" key={r.id ?? i}>
             <div className="review-header">
               <div>
                 <div className="review-brand">{r.brand}</div>
