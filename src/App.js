@@ -24,6 +24,7 @@ export default function App() {
   const isAuth = AUTH_PATHS.includes(location.pathname);
 
   const [toast, setToast] = useState({ visible: false, msg: '' });
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const showToast = useCallback((msg) => {
     setToast({ visible: true, msg });
@@ -53,7 +54,7 @@ export default function App() {
               ))}
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               <div className="role-toggle">
                 <button
                   className={`role-btn${!isCreator ? ' active' : ''}`}
@@ -68,13 +69,79 @@ export default function App() {
                   Creator
                 </button>
               </div>
+
               <button
-                className="nav-tab"
-                style={{ fontSize: 13.5, opacity: 0.6 }}
-                onClick={() => navigate({ to: '/auth' })}
+                className="nav-icon-btn"
+                title="Messages"
+                onClick={() => navigate({ to: '/messages' })}
               >
-                Sign Out
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
               </button>
+
+              <button className="nav-icon-btn" title="Notifications">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                </svg>
+              </button>
+
+              <div className="nav-profile-wrap">
+                <button className="nav-profile-btn" onClick={() => setProfileOpen((o) => !o)}>
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                </button>
+                {profileOpen && (
+                  <div className="nav-dropdown">
+                    <button className="nav-dropdown-item" onClick={() => setProfileOpen(false)}>
+                      Settings
+                    </button>
+                    <button className="nav-dropdown-item" onClick={() => setProfileOpen(false)}>
+                      Billing
+                    </button>
+                    <div className="nav-dropdown-divider" />
+                    <button
+                      className="nav-dropdown-item danger"
+                      onClick={() => {
+                        setProfileOpen(false);
+                        navigate({ to: '/auth' });
+                      }}
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </nav>
         )}
