@@ -18,7 +18,7 @@ export default function AuthView() {
     <div className="auth-wrap">
       <div className="auth-card">
         <div className="auth-logo">
-          <div className="logo-gem" />
+          <img src="/logo.png" alt="PitchVault" className="header-logo" />
           Pitch Vault
         </div>
 
