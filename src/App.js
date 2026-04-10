@@ -36,7 +36,7 @@ export default function App() {
         {!isAuth && (
           <nav className="nav">
             <Link to="/feed" className="nav-logo">
-              <div className="logo-gem" />
+              <img src="/logo.png" alt="PitchVault" className="header-logo" />
               Pitch Vault
             </Link>
 
@@ -86,7 +86,7 @@ export default function App() {
         <div className={`toast${toast.visible ? ' show' : ''}`}>{toast.msg}</div>
 
         <footer className="footer">
-          <img src="/favicon.svg" alt="PitchVault" className="footer-logo" />
+          <img src="/logo.png" alt="PitchVault" className="footer-logo" />
           <span className="footer-version">
             v{version} &nbsp;·&nbsp; © {new Date().getFullYear()} PitchVault
           </span>
