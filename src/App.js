@@ -85,16 +85,11 @@ export default function App() {
 
         <div className={`toast${toast.visible ? ' show' : ''}`}>{toast.msg}</div>
 
-        <footer
-          style={{
-            marginTop: 'auto',
-            textAlign: 'center',
-            padding: '12px',
-            opacity: 0.4,
-            fontSize: 12,
-          }}
-        >
-          v{version}
+        <footer className="footer">
+          <img src="/favicon.svg" alt="PitchVault" className="footer-logo" />
+          <span className="footer-version">
+            v{version} &nbsp;·&nbsp; © {new Date().getFullYear()} PitchVault
+          </span>
         </footer>
       </div>
     </ToastContext.Provider>

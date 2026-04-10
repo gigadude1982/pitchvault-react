@@ -79,8 +79,24 @@ body {
   justify-content: space-between;
   padding: 0 28px;
   height: 60px;
-  background: var(--obsidian-2);
-  border-bottom: 1px solid var(--border);
+  background-color: #0a0a0a;
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      rgba(255,255,255,0.022) 0px,
+      rgba(255,255,255,0.022) 1px,
+      transparent 1px,
+      transparent 50%
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(255,255,255,0.022) 0px,
+      rgba(255,255,255,0.022) 1px,
+      transparent 1px,
+      transparent 50%
+    );
+  background-size: 6px 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -170,6 +186,49 @@ a.nav-logo {
   right: 8px;
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+}
+
+/* ── FOOTER ── */
+.footer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 18px 0;
+  margin-top: auto;
+  background-color: #0a0a0a;
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      rgba(255,255,255,0.022) 0px,
+      rgba(255,255,255,0.022) 1px,
+      transparent 1px,
+      transparent 50%
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(255,255,255,0.022) 0px,
+      rgba(255,255,255,0.022) 1px,
+      transparent 1px,
+      transparent 50%
+    );
+  background-size: 6px 6px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+
+.footer-logo {
+  width: 28px;
+  height: 28px;
+  opacity: 0.7;
+}
+
+.footer-version {
+  font-family: var(--cinzel);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  opacity: 0.55;
 }
 
 .role-toggle {
