@@ -2,6 +2,8 @@ import React, { useState, useCallback } from 'react';
 import { Link, Outlet, useNavigate, useRouterState } from '@tanstack/react-router';
 import './styles.css';
 import { ToastContext } from './ToastContext';
+import pkg from '../package.json';
+const { version } = pkg;
 
 const TABS = [
   { path: '/feed', label: 'Discover' },
@@ -30,7 +32,7 @@ export default function App() {
 
   return (
     <ToastContext.Provider value={showToast}>
-      <div>
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         {!isAuth && (
           <nav className="nav">
             <Link to="/feed" className="nav-logo">
@@ -82,6 +84,18 @@ export default function App() {
         </div>
 
         <div className={`toast${toast.visible ? ' show' : ''}`}>{toast.msg}</div>
+
+        <footer
+          style={{
+            marginTop: 'auto',
+            textAlign: 'center',
+            padding: '12px',
+            opacity: 0.4,
+            fontSize: 12,
+          }}
+        >
+          v{version}
+        </footer>
       </div>
     </ToastContext.Provider>
   );
