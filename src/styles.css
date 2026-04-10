@@ -2093,3 +2093,208 @@ a.nav-logo {
   cursor: default;
   opacity: 0.6;
 }
+
+/* ═══════════════════════════════════════════════════
+   MOBILE RESPONSIVE
+   Breakpoints: < 1024px (tablet+mobile), < 768px (mobile)
+   ═══════════════════════════════════════════════════ */
+
+/* ── HAMBURGER BUTTON ── */
+.nav-hamburger {
+  display: none;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 5px 10px;
+  font-size: 18px;
+  line-height: 1;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, border-color 0.2s;
+}
+.nav-hamburger:hover {
+  color: var(--gold);
+  border-color: var(--gold-dim);
+}
+
+/* ── MOBILE NAV DRAWER ── */
+.nav-mobile-menu {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  right: 0;
+  background: var(--obsidian-2);
+  border-bottom: 1px solid var(--border-bright);
+  z-index: 99;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+.nav-mobile-tab {
+  font-family: var(--cinzel);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  padding: 13px 20px;
+  text-decoration: none;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(201, 168, 76, 0.06);
+  transition: color 0.15s, background 0.15s;
+  display: block;
+}
+.nav-mobile-tab:hover {
+  color: var(--gold);
+  background: var(--obsidian-3);
+}
+.nav-mobile-tab.active {
+  color: var(--gold-bright);
+  background: var(--gold-pale);
+  border-left: 2px solid var(--gold);
+}
+
+.nav-mobile-role-section {
+  padding: 14px 20px 16px;
+  border-bottom: 1px solid var(--border-bright);
+  margin-bottom: 4px;
+}
+
+.nav-mobile-role-label {
+  display: block;
+  font-family: var(--cinzel);
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.nav-mobile-role-row {
+  display: flex;
+  gap: 1px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.nav-mobile-role-row .role-btn {
+  flex: 1;
+  padding: 10px 0;
+  font-size: 13px;
+  letter-spacing: 2px;
+}
+
+/* ── TABLET & BELOW (< 1024px): collapse nav tabs to hamburger ── */
+@media (max-width: 1023px) {
+  .nav-tabs { display: none; }
+  .nav-role-toggle { display: none; }
+  .nav-hamburger { display: flex; }
+  .nav { padding: 0 20px; }
+}
+
+/* ── MOBILE (< 768px) ── */
+@media (max-width: 767px) {
+  /* NAV */
+  .nav { padding: 0 14px; height: 56px; }
+  .nav-mobile-menu { top: 56px; }
+  .nav-logo { font-size: 17px; letter-spacing: 2px; }
+  .header-logo { width: 36px; height: 36px; }
+
+  /* LAYOUT */
+  .view { padding: 14px; }
+
+  /* SECTION HEADERS */
+  .section-header { font-size: 22px; letter-spacing: 2px; }
+  .section-sub { font-size: 17px; }
+
+  /* KPI STRIP */
+  .kpi-strip { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .kpi-value { font-size: 18px; }
+
+  /* MESSAGES / CHAT */
+  .chat-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  .chat-list { height: 220px; }
+  .chat-main { height: 420px; }
+
+  /* PAYMENTS */
+  .payment-amount { font-size: 32px; margin: 10px 0; }
+
+  /* ANALYTICS */
+  .stat-value { font-size: 28px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* PRICING */
+  .pricing-grid { grid-template-columns: 1fr; }
+  .pricing-amount { font-size: 42px; }
+
+  /* CREATOR PROFILE */
+  .profile-hero { flex-direction: column; gap: 16px; }
+  .profile-video-thumb { width: 100%; min-width: unset; height: 220px; }
+  .profile-stats-row { flex-wrap: wrap; }
+  .profile-stat { min-width: 50%; }
+  .profile-stat-value { font-size: 22px; }
+
+  /* PORTFOLIO */
+  .portfolio-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* PANEL / FORMS */
+  .panel { padding: 20px 14px; max-width: 100%; }
+  .option-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* AUTH */
+  .auth-card { padding: 28px 18px; }
+  .auth-tagline { font-size: 22px; }
+
+  /* FEED HEADER */
+  .feed-header { flex-direction: column; align-items: flex-start; gap: 6px; }
+
+  /* CAMPAIGN CARDS */
+  .campaign-card-header { flex-wrap: wrap; gap: 8px; }
+  .campaign-card-meta { gap: 10px; }
+  .campaign-card-actions { flex-wrap: wrap; }
+
+  /* TOAST */
+  .toast {
+    bottom: 14px;
+    right: 14px;
+    left: 14px;
+    font-size: 13px;
+    text-align: center;
+  }
+}
+
+/* ── SMALL MOBILE (< 480px) ── */
+@media (max-width: 479px) {
+  .section-header { font-size: 19px; letter-spacing: 1.5px; }
+  .nav-logo { font-size: 15px; letter-spacing: 1.5px; }
+  .header-logo { width: 30px; height: 30px; }
+  .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .auth-card { padding: 22px 14px; }
+  .auth-tagline { font-size: 20px; }
+  .payment-amount { font-size: 28px; }
+  .pricing-amount { font-size: 36px; }
+  .chat-list { height: 180px; }
+  .chat-main { height: 360px; }
+  .profile-stat { min-width: 50%; }
+  .quick-action-bar { gap: 6px; }
+  .filter-chip { font-size: 12px; padding: 5px 10px; }
+}
+
+/* ── TABLET (768px – 1023px): tune layouts without hamburger changes ── */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .view { padding: 20px; }
+  .pricing-grid { grid-template-columns: 1fr 1fr; }
+  .chat-layout { grid-template-columns: 200px 1fr; }
+  .section-header { font-size: 28px; }
+  .stat-value { font-size: 32px; }
+  .payment-amount { font-size: 38px; }
+  .panel { max-width: 100%; }
+  .profile-stats-row { flex-wrap: wrap; }
+}
