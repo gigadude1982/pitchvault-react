@@ -22,11 +22,14 @@ const RATE_FILTERS = [
   { label: '$2K+', min: 2001, max: Infinity },
 ];
 
+const PLATFORMS = ['All', 'TikTok', 'Instagram', 'YouTube'];
+
 export default function DiscoverView() {
   const navigate = useNavigate();
   const showToast = useToast();
   const [activeGroup, setActiveGroup] = useState(0);
   const [activeRate, setActiveRate] = useState(0);
+  const [activePlatform, setActivePlatform] = useState(0);
   const [saved, setSaved] = useState(() => {
     const s = {};
     CREATORS.forEach((c) => {
@@ -90,6 +93,18 @@ export default function DiscoverView() {
             onClick={() => setActiveRate(i)}
           >
             {r.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="filter-row" style={{ marginTop: 8 }}>
+        {PLATFORMS.map((p, i) => (
+          <button
+            key={p}
+            className={`filter-chip${activePlatform === i ? ' on' : ''}`}
+            onClick={() => setActivePlatform(i)}
+          >
+            {p}
           </button>
         ))}
       </div>
@@ -186,10 +201,10 @@ export default function DiscoverView() {
                   className="btn-gold"
                   onClick={() => {
                     navigate({ to: '/request' });
-                    showToast(`Deal initiated with ${c.name}`);
+                    showToast(`${c.name} invited to campaign`);
                   }}
                 >
-                  Request
+                  Invite to Campaign
                 </button>
                 <button
                   className="btn-outline"
