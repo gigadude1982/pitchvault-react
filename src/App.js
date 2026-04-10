@@ -25,6 +25,7 @@ export default function App() {
 
   const [toast, setToast] = useState({ visible: false, msg: '' });
   const [profileOpen, setProfileOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const showToast = useCallback((msg) => {
     setToast({ visible: true, msg });
@@ -55,7 +56,7 @@ export default function App() {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <div className="role-toggle">
+              <div className="role-toggle nav-role-toggle">
                 <button
                   className={`role-btn${!isCreator ? ' active' : ''}`}
                   onClick={() => navigate({ to: '/feed' })}
@@ -105,6 +106,14 @@ export default function App() {
                 </svg>
               </button>
 
+              <button
+                className="nav-hamburger"
+                onClick={() => setMenuOpen((o) => !o)}
+                aria-label="Toggle menu"
+              >
+                {menuOpen ? '✕' : '☰'}
+              </button>
+
               <div className="nav-profile-wrap">
                 <button className="nav-profile-btn" onClick={() => setProfileOpen((o) => !o)}>
                   <svg
@@ -144,6 +153,45 @@ export default function App() {
               </div>
             </div>
           </nav>
+        )}
+
+        {!isAuth && menuOpen && (
+          <div className="nav-mobile-menu">
+            <div className="nav-mobile-role-section">
+              <span className="nav-mobile-role-label">View As</span>
+              <div className="nav-mobile-role-row">
+                <button
+                  className={`role-btn${!isCreator ? ' active' : ''}`}
+                  onClick={() => {
+                    navigate({ to: '/feed' });
+                    setMenuOpen(false);
+                  }}
+                >
+                  Brand
+                </button>
+                <button
+                  className={`role-btn${isCreator ? ' active' : ''}`}
+                  onClick={() => {
+                    navigate({ to: '/creator' });
+                    setMenuOpen(false);
+                  }}
+                >
+                  Creator
+                </button>
+              </div>
+            </div>
+            {TABS.map((t) => (
+              <Link
+                key={t.path}
+                to={t.path}
+                className="nav-mobile-tab"
+                activeProps={{ className: 'nav-mobile-tab active' }}
+                onClick={() => setMenuOpen(false)}
+              >
+                {t.label}
+              </Link>
+            ))}
+          </div>
         )}
 
         <div>
