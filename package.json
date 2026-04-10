@@ -1,6 +1,6 @@
 {
   "name": "pitch-vault",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "dependencies": {
     "@tanstack/react-router": "^1.161.3",
