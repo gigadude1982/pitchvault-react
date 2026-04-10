@@ -16,7 +16,9 @@ const rootRoute = createRootRoute({ component: App });
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  beforeLoad: () => { throw redirect({ to: '/auth' }); },
+  beforeLoad: () => {
+    throw redirect({ to: '/auth' });
+  },
 });
 
 const authRoute = createRoute({

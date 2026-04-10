@@ -39,7 +39,7 @@ export default function App() {
             </Link>
 
             <div className="nav-tabs">
-              {TABS.map(t => (
+              {TABS.map((t) => (
                 <Link
                   key={t.path}
                   to={t.path}

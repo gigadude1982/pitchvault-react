@@ -49,7 +49,7 @@ export default function AuthView() {
                 className="form-input"
                 placeholder={role === 'brand' ? 'e.g. Apex Nutrition' : 'e.g. Jordan Reeves'}
                 value={name}
-                onChange={e => setName(e.target.value)}
+                onChange={(e) => setName(e.target.value)}
               />
             </div>
           )}
@@ -60,7 +60,7 @@ export default function AuthView() {
               type="email"
               placeholder="you@example.com"
               value={email}
-              onChange={e => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div className="auth-field">
@@ -70,7 +70,7 @@ export default function AuthView() {
               type="password"
               placeholder="••••••••"
               value={password}
-              onChange={e => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </div>
           <button type="submit" className="btn-submit-gold" style={{ marginTop: 8 }}>
@@ -80,12 +80,18 @@ export default function AuthView() {
 
         <div className="auth-switch">
           {mode === 'signin' ? (
-            <>Don't have an account?{' '}
-              <button className="auth-switch-btn" onClick={() => setMode('signup')}>Create one</button>
+            <>
+              Don&apos;t have an account?{' '}
+              <button className="auth-switch-btn" onClick={() => setMode('signup')}>
+                Create one
+              </button>
             </>
           ) : (
-            <>Already have an account?{' '}
-              <button className="auth-switch-btn" onClick={() => setMode('signin')}>Sign in</button>
+            <>
+              Already have an account?{' '}
+              <button className="auth-switch-btn" onClick={() => setMode('signin')}>
+                Sign in
+              </button>
             </>
           )}
         </div>

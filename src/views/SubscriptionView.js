@@ -29,14 +29,16 @@ export default function SubscriptionView() {
       <div style={{ textAlign: 'center', marginBottom: 40 }}>
         <div className="section-header">Creator Membership</div>
         <div className="section-sub" style={{ maxWidth: 480, margin: '10px auto 0' }}>
-          Join Pitch Vault and get discovered by top brands. Everything you need to close deals and grow your income.
+          Join Pitch Vault and get discovered by top brands. Everything you need to close deals and
+          grow your income.
         </div>
       </div>
 
-      <div className="gold-divider"><span className="divider-gem">◆</span></div>
+      <div className="gold-divider">
+        <span className="divider-gem">◆</span>
+      </div>
 
       <div className="pricing-grid">
-
         {/* Monthly */}
         <div className={`pricing-card${selected === 'monthly' ? ' selected' : ''}`}>
           <div className="pricing-card-header">
@@ -49,7 +51,7 @@ export default function SubscriptionView() {
           </div>
 
           <div className="pricing-features">
-            {FEATURES.map(f => (
+            {FEATURES.map((f) => (
               <div className={`pricing-feature${!f.monthly ? ' unavailable' : ''}`} key={f.label}>
                 <span className="feature-check">{f.monthly ? '◆' : '—'}</span>
                 {f.label}
@@ -79,7 +81,7 @@ export default function SubscriptionView() {
           </div>
 
           <div className="pricing-features">
-            {FEATURES.map(f => (
+            {FEATURES.map((f) => (
               <div className="pricing-feature" key={f.label}>
                 <span className="feature-check">◆</span>
                 {f.label}
@@ -95,26 +97,46 @@ export default function SubscriptionView() {
             {selected === 'annual' ? '◆ Current Plan' : 'Get Annual Access'}
           </button>
         </div>
-
       </div>
 
       <div className="revenue-panel" style={{ marginTop: 40, textAlign: 'center' }}>
-        <div className="chart-title" style={{ marginBottom: 16 }}>Platform Revenue Model</div>
+        <div className="chart-title" style={{ marginBottom: 16 }}>
+          Platform Revenue Model
+        </div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 48 }}>
           {[
             { label: 'Creator Subscriptions', value: '$10.99 – $99.99' },
             { label: 'Deal Transaction Fee', value: '20% platform fee' },
             { label: 'Digital Product Fee', value: '10% per sale' },
             { label: 'Affiliate Commission', value: '20–40% to affiliates' },
-          ].map(s => (
+          ].map((s) => (
             <div key={s.label}>
-              <div style={{ fontFamily: 'var(--cinzel)', fontSize: 19.5, fontWeight: 700, color: 'var(--gold-light)', marginBottom: 4 }}>{s.value}</div>
-              <div style={{ fontSize: 13.5, fontFamily: 'var(--cinzel)', letterSpacing: 2, color: 'var(--text-muted)', textTransform: 'uppercase' }}>{s.label}</div>
+              <div
+                style={{
+                  fontFamily: 'var(--cinzel)',
+                  fontSize: 19.5,
+                  fontWeight: 700,
+                  color: 'var(--gold-light)',
+                  marginBottom: 4,
+                }}
+              >
+                {s.value}
+              </div>
+              <div
+                style={{
+                  fontSize: 13.5,
+                  fontFamily: 'var(--cinzel)',
+                  letterSpacing: 2,
+                  color: 'var(--text-muted)',
+                  textTransform: 'uppercase',
+                }}
+              >
+                {s.label}
+              </div>
             </div>
           ))}
         </div>
       </div>
-
     </div>
   );
 }
