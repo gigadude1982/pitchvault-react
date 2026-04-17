@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { useNavigate } from '@tanstack/react-router';
+import { useRouter } from 'next/navigation';
 import { useToast } from '../ToastContext';
 
 const KPI = [
@@ -65,7 +65,7 @@ OptionGroup.propTypes = {
 
 export default function CampaignView() {
   const showToast = useToast();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [showForm, setShowForm] = useState(false);
   const [campaigns, setCampaigns] = useState(MOCK_CAMPAIGNS);
   const [goal, setGoal] = useState('Awareness');
@@ -101,7 +101,7 @@ export default function CampaignView() {
         <button className="btn-gold qab-primary" onClick={() => setShowForm((v) => !v)}>
           {showForm ? '✕ Close' : '+ Create Campaign'}
         </button>
-        <button className="btn-outline qab-btn" onClick={() => navigate({ to: '/feed' })}>
+        <button className="btn-outline qab-btn" onClick={() => router.push('/feed')}>
           Browse Creators
         </button>
         <button className="btn-outline qab-btn" onClick={() => setShowForm(false)}>
