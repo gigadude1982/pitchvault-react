@@ -1,43 +1,26 @@
 {
   "name": "pitch-vault",
-  "version": "1.1.4",
+  "version": "2.0.0",
   "private": true,
   "dependencies": {
-    "@tanstack/react-router": "^1.161.3",
-    "ajv": "^8.18.0",
-    "ajv-keywords": "^5.1.0",
+    "next": "^14.2.35",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-scripts": "5.0.1"
+    "react-dom": "^18.2.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "lint": "eslint src --ext .js,.jsx",
-    "lint:fix": "eslint src --ext .js,.jsx --fix",
-    "format": "prettier --write src",
-    "verify": "npm run build && npm run test -- --watchAll=false && npm run lint",
-    "ci-cd": "npm run build && npm run test -- --watchAll=false && npm run lint"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version"
-    ]
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "format": "prettier --write src app"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.35",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
-    "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^7.0.1",
     "prettier": "^3.8.1"
   }
 }

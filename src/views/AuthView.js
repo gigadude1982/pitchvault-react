@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import { useRouter } from 'next/navigation';
 
 export default function AuthView() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [mode, setMode] = useState('signin');
   const [role, setRole] = useState('brand');
   const [name, setName] = useState('');
@@ -11,7 +11,7 @@ export default function AuthView() {
 
   const submit = (e) => {
     e.preventDefault();
-    navigate({ to: role === 'creator' ? '/creator' : '/feed' });
+    router.push(role === 'creator' ? '/creator' : '/feed');
   };
 
   return (

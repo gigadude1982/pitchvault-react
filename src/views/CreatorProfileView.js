@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { useParams, useNavigate } from '@tanstack/react-router';
+import { useRouter } from 'next/navigation';
 import { CREATORS } from '../data/creators';
 import { useToast } from '../ToastContext';
 
@@ -21,9 +21,8 @@ Stars.propTypes = {
   rating: PropTypes.number.isRequired,
 };
 
-export default function CreatorProfileView() {
-  const { id } = useParams({ strict: false });
-  const navigate = useNavigate();
+export default function CreatorProfileView({ id }) {
+  const router = useRouter();
   const showToast = useToast();
   const creator = CREATORS[parseInt(id)] ?? CREATORS[0];
 
@@ -51,7 +50,7 @@ export default function CreatorProfileView() {
       <button
         className="btn-outline"
         style={{ marginBottom: 20 }}
-        onClick={() => navigate({ to: '/feed' })}
+        onClick={() => router.push('/feed')}
       >
         ← Back to Vault
       </button>
@@ -114,7 +113,7 @@ export default function CreatorProfileView() {
             <button
               className="btn-gold"
               onClick={() => {
-                navigate({ to: '/request' });
+                router.push('/request');
                 showToast(`Deal initiated with ${creator.name}`);
               }}
             >

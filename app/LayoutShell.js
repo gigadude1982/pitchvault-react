@@ -1,9 +1,11 @@
+'use client';
+
 import React, { useState, useCallback } from 'react';
-import { Link, Outlet, useNavigate, useRouterState } from '@tanstack/react-router';
-import './styles.css';
-import { ToastContext } from './ToastContext';
-import pkg from '../package.json';
-const { version } = pkg;
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { ToastContext } from '../src/ToastContext';
+
+const VERSION = '2.0.0';
 
 const TABS = [
   { path: '/feed', label: 'Discover' },
@@ -17,11 +19,11 @@ const TABS = [
 
 const AUTH_PATHS = ['/auth'];
 
-export default function App() {
-  const navigate = useNavigate();
-  const { location } = useRouterState();
-  const isCreator = location.pathname === '/creator';
-  const isAuth = AUTH_PATHS.includes(location.pathname);
+export function LayoutShell({ children }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const isCreator = pathname === '/creator';
+  const isAuth = AUTH_PATHS.includes(pathname);
 
   const [toast, setToast] = useState({ visible: false, msg: '' });
   const [profileOpen, setProfileOpen] = useState(false);
@@ -37,7 +39,7 @@ export default function App() {
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         {!isAuth && (
           <nav className="nav">
-            <Link to="/feed" className="nav-logo">
+            <Link href="/feed" className="nav-logo">
               <img src="/logo.png" alt="PitchVault" className="header-logo" />
               Pitch Vault
             </Link>
@@ -46,9 +48,8 @@ export default function App() {
               {TABS.map((t) => (
                 <Link
                   key={t.path}
-                  to={t.path}
-                  className="nav-tab"
-                  activeProps={{ className: 'nav-tab active' }}
+                  href={t.path}
+                  className={`nav-tab${pathname === t.path ? ' active' : ''}`}
                 >
                   {t.label}
                 </Link>
@@ -59,13 +60,13 @@ export default function App() {
               <div className="role-toggle nav-role-toggle">
                 <button
                   className={`role-btn${!isCreator ? ' active' : ''}`}
-                  onClick={() => navigate({ to: '/feed' })}
+                  onClick={() => router.push('/feed')}
                 >
                   Brand
                 </button>
                 <button
                   className={`role-btn${isCreator ? ' active' : ''}`}
-                  onClick={() => navigate({ to: '/creator' })}
+                  onClick={() => router.push('/creator')}
                 >
                   Creator
                 </button>
@@ -74,7 +75,7 @@ export default function App() {
               <button
                 className="nav-icon-btn"
                 title="Messages"
-                onClick={() => navigate({ to: '/messages' })}
+                onClick={() => router.push('/messages')}
               >
                 <svg
                   width="18"
@@ -111,7 +112,7 @@ export default function App() {
                 onClick={() => setMenuOpen((o) => !o)}
                 aria-label="Toggle menu"
               >
-                {menuOpen ? '✕' : '☰'}
+                {menuOpen ? '\u2715' : '\u2630'}
               </button>
 
               <div className="nav-profile-wrap">
@@ -143,7 +144,7 @@ export default function App() {
                       className="nav-dropdown-item danger"
                       onClick={() => {
                         setProfileOpen(false);
-                        navigate({ to: '/auth' });
+                        router.push('/auth');
                       }}
                     >
                       Logout
@@ -163,7 +164,7 @@ export default function App() {
                 <button
                   className={`role-btn${!isCreator ? ' active' : ''}`}
                   onClick={() => {
-                    navigate({ to: '/feed' });
+                    router.push('/feed');
                     setMenuOpen(false);
                   }}
                 >
@@ -172,7 +173,7 @@ export default function App() {
                 <button
                   className={`role-btn${isCreator ? ' active' : ''}`}
                   onClick={() => {
-                    navigate({ to: '/creator' });
+                    router.push('/creator');
                     setMenuOpen(false);
                   }}
                 >
@@ -183,9 +184,8 @@ export default function App() {
             {TABS.map((t) => (
               <Link
                 key={t.path}
-                to={t.path}
-                className="nav-mobile-tab"
-                activeProps={{ className: 'nav-mobile-tab active' }}
+                href={t.path}
+                className={`nav-mobile-tab${pathname === t.path ? ' active' : ''}`}
                 onClick={() => setMenuOpen(false)}
               >
                 {t.label}
@@ -194,16 +194,14 @@ export default function App() {
           </div>
         )}
 
-        <div>
-          <Outlet />
-        </div>
+        <div>{children}</div>
 
         <div className={`toast${toast.visible ? ' show' : ''}`}>{toast.msg}</div>
 
         <footer className="footer">
           <img src="/logo.png" alt="PitchVault" className="footer-logo" />
           <span className="footer-version">
-            v{version} &nbsp;·&nbsp; © {new Date().getFullYear()} PitchVault
+            v{VERSION} &nbsp;&middot;&nbsp; &copy; {new Date().getFullYear()} PitchVault
           </span>
         </footer>
       </div>

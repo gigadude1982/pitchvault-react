@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import { useRouter } from 'next/navigation';
 import { useToast } from '../ToastContext';
 import { CREATORS } from '../data/creators';
 
@@ -25,7 +25,7 @@ const RATE_FILTERS = [
 const PLATFORMS = ['All', 'TikTok', 'Instagram', 'YouTube'];
 
 export default function DiscoverView() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const showToast = useToast();
   const [activeGroup, setActiveGroup] = useState(0);
   const [activeRate, setActiveRate] = useState(0);
@@ -200,16 +200,13 @@ export default function DiscoverView() {
                 <button
                   className="btn-gold"
                   onClick={() => {
-                    navigate({ to: '/request' });
+                    router.push('/request');
                     showToast(`${c.name} invited to campaign`);
                   }}
                 >
                   Invite to Campaign
                 </button>
-                <button
-                  className="btn-outline"
-                  onClick={() => navigate({ to: '/creators/$id', params: { id: String(c.id) } })}
-                >
+                <button className="btn-outline" onClick={() => router.push(`/creators/${c.id}`)}>
                   View
                 </button>
               </div>
