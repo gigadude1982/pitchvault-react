@@ -1647,6 +1647,16 @@ a.nav-logo {
   margin-bottom: 32px;
 }
 
+.auth-subtitle {
+  font-size: 12px;
+  font-style: italic;
+  color: var(--text-muted);
+  text-align: center;
+  letter-spacing: 1.5px;
+  margin-top: -24px;
+  margin-bottom: 28px;
+}
+
 .auth-tagline {
   font-family: var(--cinzel);
   font-size: 30px;
