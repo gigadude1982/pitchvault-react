@@ -22,9 +22,7 @@ export default function AuthView() {
           Pitch Vault
         </div>
 
-        <div className="auth-tagline">
-          {mode === 'signin' ? 'Welcome back.' : 'Join the marketplace.'}
-        </div>
+        <div className="auth-tagline">A UGC Marketplace</div>
 
         <div className="auth-role-row">
           <button
