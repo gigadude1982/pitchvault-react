@@ -23,7 +23,7 @@ export default function AuthView() {
         </div>
 
         <div className="auth-tagline">
-          {mode === 'signin' ? 'Welcome back.' : 'Join the marketplace.'}
+          {mode === 'signin' ? 'A UGC Marketplace' : 'Join the marketplace.'}
         </div>
 
         <div className="auth-role-row">
