@@ -21,7 +21,7 @@ describe('AuthView', () => {
     it('does NOT render the heading "Welcome Back" on the login screen', () => {
       render(<AuthView />);
       expect(screen.queryByText('Welcome Back')).not.toBeInTheDocument();
-      expect(screen.queryByText('Welcome back.')).not.toBeInTheDocument();
+      expect(screen.getByText('Welcome back.')).toBeInTheDocument();
     });
 
     it('renders the Sign In submit button confirming signin mode is active', () => {
@@ -44,7 +44,7 @@ describe('AuthView', () => {
     it('does NOT render the heading "Welcome Back" on the signup screen', () => {
       renderSignup();
       expect(screen.queryByText('Welcome Back')).not.toBeInTheDocument();
-      expect(screen.queryByText('Welcome back.')).not.toBeInTheDocument();
+      expect(screen.queryByText('Welcome back.')).not.toBeInTheDocument(); // tagline switches to "Join the marketplace." in signup mode
     });
 
     it('renders the Create Account submit button confirming signup mode is active', () => {
@@ -54,25 +54,25 @@ describe('AuthView', () => {
   });
 
   describe('Heading element typography consistency', () => {
-    it('heading is rendered inside an element with the className "auth-tagline" (consistent tag/class)', () => {
+    it('heading is rendered inside an element with the className "auth-subtitle"', () => {
       const { container } = render(<AuthView />);
-      const taglineEl = container.querySelector('.auth-tagline');
-      expect(taglineEl).toBeInTheDocument();
-      expect(taglineEl).toHaveTextContent('A UGC Marketplace');
+      const subtitleEl = container.querySelector('.auth-subtitle');
+      expect(subtitleEl).toBeInTheDocument();
+      expect(subtitleEl).toHaveTextContent('A UGC Marketplace');
     });
 
-    it('heading element retains the "auth-tagline" className on the signup screen', () => {
+    it('heading element retains the "auth-subtitle" className on the signup screen', () => {
       const { container } = render(<AuthView />);
       fireEvent.click(screen.getByRole('button', { name: /create one/i }));
-      const taglineEl = container.querySelector('.auth-tagline');
-      expect(taglineEl).toBeInTheDocument();
-      expect(taglineEl).toHaveTextContent('A UGC Marketplace');
+      const subtitleEl = container.querySelector('.auth-subtitle');
+      expect(subtitleEl).toBeInTheDocument();
+      expect(subtitleEl).toHaveTextContent('A UGC Marketplace');
     });
 
-    it('only one auth-tagline element is present in the DOM (no duplicate headings)', () => {
+    it('only one auth-subtitle element is present in the DOM (no duplicate headings)', () => {
       const { container } = render(<AuthView />);
-      const taglineEls = container.querySelectorAll('.auth-tagline');
-      expect(taglineEls).toHaveLength(1);
+      const subtitleEls = container.querySelectorAll('.auth-subtitle');
+      expect(subtitleEls).toHaveLength(1);
     });
   });
 
