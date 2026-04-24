@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Link, Outlet, useNavigate, useRouterState } from '@tanstack/react-router';
 import './styles.css';
 import { ToastContext } from './ToastContext';
+import Footer from './components/Footer';
 import pkg from '../package.json';
 const { version } = pkg;
 
@@ -111,7 +112,7 @@ export default function App() {
                 onClick={() => setMenuOpen((o) => !o)}
                 aria-label="Toggle menu"
               >
-                {menuOpen ? '✕' : '☰'}
+                {menuOpen ? '\u2715' : '\u2630'}
               </button>
 
               <div className="nav-profile-wrap">
@@ -200,12 +201,7 @@ export default function App() {
 
         <div className={`toast${toast.visible ? ' show' : ''}`}>{toast.msg}</div>
 
-        <footer className="footer">
-          <img src="/logo.png" alt="PitchVault" className="footer-logo" />
-          <span className="footer-version">
-            v{version} &nbsp;·&nbsp; © {new Date().getFullYear()} PitchVault
-          </span>
-        </footer>
+        <Footer version={version} />
       </div>
     </ToastContext.Provider>
   );
