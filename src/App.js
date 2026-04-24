@@ -111,7 +111,7 @@ export default function App() {
                 onClick={() => setMenuOpen((o) => !o)}
                 aria-label="Toggle menu"
               >
-                {menuOpen ? '✕' : '☰'}
+                {menuOpen ? '\u2715' : '\u2630'}
               </button>
 
               <div className="nav-profile-wrap">
@@ -201,9 +201,13 @@ export default function App() {
         <div className={`toast${toast.visible ? ' show' : ''}`}>{toast.msg}</div>
 
         <footer className="footer">
-          <img src="/logo.png" alt="PitchVault" className="footer-logo" />
+          <div className="footer-branding">
+            <img src="/logo.png" alt="PitchVault" className="footer-logo" />
+            <span className="footer-wordmark">Pitch Vault</span>
+            <span className="footer-tagline" data-testid="footer-tagline">A UGC Marketplace</span>
+          </div>
           <span className="footer-version">
-            v{version} &nbsp;·&nbsp; © {new Date().getFullYear()} PitchVault
+            v{version} &nbsp;&middot;&nbsp; &copy; {new Date().getFullYear()} PitchVault
           </span>
         </footer>
       </div>
