@@ -2,6 +2,14 @@ import { renderHook } from '@testing-library/react';
 import React from 'react';
 import { ToastContext, useToast } from './ToastContext';
 
+beforeEach(() => {
+  jest.spyOn(console, 'error').mockImplementation(() => {});
+});
+
+afterEach(() => {
+  console.error.mockRestore();
+});
+
 test('useToast returns the context value when inside a provider', () => {
   const mockShowToast = jest.fn();
   const wrapper = ({ children }) => (
