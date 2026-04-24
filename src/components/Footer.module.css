@@ -1,0 +1,24 @@
+.footer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tagline {
+  font-size: 0.85em;
+  opacity: 0.65;
+  margin-left: 4px;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .footer {
+    flex-wrap: wrap;
+  }
+
+  .tagline {
+    flex-basis: 100%;
+    margin-left: 0;
+  }
+}
