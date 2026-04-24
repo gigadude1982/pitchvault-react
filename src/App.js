@@ -201,7 +201,27 @@ export default function App() {
         <div className={`toast${toast.visible ? ' show' : ''}`}>{toast.msg}</div>
 
         <footer className="footer">
-          <img src="/logo.png" alt="PitchVault" className="footer-logo" />
+          <div
+            style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              gap: '0 10px',
+            }}
+          >
+            <img src="/logo.png" alt="PitchVault" className="footer-logo" />
+            <span className="footer-wordmark">Pitch Vault</span>
+            <span
+              className="footer-tagline"
+              style={{
+                fontSize: '0.75rem',
+                opacity: 0.65,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              A UGC Marketplace
+            </span>
+          </div>
           <span className="footer-version">
             v{version} &nbsp;·&nbsp; © {new Date().getFullYear()} PitchVault
           </span>
