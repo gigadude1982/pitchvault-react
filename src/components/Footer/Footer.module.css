@@ -1,0 +1,50 @@
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.brand {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.wordmark {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: inherit;
+}
+
+.tagline {
+  font-size: 0.75rem;
+  opacity: 0.65;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
+.version {
+  font-size: 0.75rem;
+  opacity: 0.55;
+  margin-left: auto;
+}
+
+@media (max-width: 480px) {
+  .footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .tagline {
+    margin-left: 0;
+  }
+
+  .version {
+    margin-left: 0;
+  }
+}
