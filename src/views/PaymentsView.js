@@ -1,40 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useToast } from '../ToastContext';
-
-const INITIAL_PAYMENTS = [
-  {
-    id: 0,
-    creator: 'Jordan Reeves',
-    campaign: 'Summer Launch',
-    amount: 3500,
-    status: 'held',
-    statusLabel: 'Held in Escrow',
-  },
-  {
-    id: 1,
-    creator: 'Maya Chen',
-    campaign: 'Fall Collection',
-    amount: 1200,
-    status: 'pending',
-    statusLabel: 'Awaiting Delivery',
-  },
-  {
-    id: 2,
-    creator: 'Caleb St. James',
-    campaign: 'Faith Lifestyle',
-    amount: 850,
-    status: 'held',
-    statusLabel: 'Held in Escrow',
-  },
-  {
-    id: 3,
-    creator: 'Sofia Voss',
-    campaign: 'TechDrop Launch',
-    amount: 2200,
-    status: 'released',
-    statusLabel: 'Released',
-  },
-];
+import { db } from '../services/db';
 
 function badgeClass(status) {
   if (status === 'held') return 'badge-held';
@@ -44,15 +10,40 @@ function badgeClass(status) {
 
 export default function PaymentsView() {
   const showToast = useToast();
-  const [payments, setPayments] = useState(INITIAL_PAYMENTS);
+  const [payments, setPayments] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    db.getPayments().then((data) => {
+      setPayments(data);
+      setLoading(false);
+    });
+  }, []);
 
   const approve = (id) => {
     setPayments((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, status: 'released', statusLabel: 'Released' } : p))
+      prev.map((p) => (p.id === id ? { ...p, status: 'released', status_label: 'Released' } : p))
     );
     const p = payments.find((p) => p.id === id);
     showToast(`Funds released to ${p.creator}`);
+    db.releasePayment(id);
   };
+
+  if (loading)
+    return (
+      <div
+        className="view"
+        style={{
+          textAlign: 'center',
+          padding: '60px 0',
+          fontFamily: 'var(--cinzel)',
+          color: 'var(--text-muted)',
+          letterSpacing: 3,
+        }}
+      >
+        LOADING...
+      </div>
+    );
 
   const total = payments.reduce((s, p) => s + p.amount, 0);
   const released = payments
@@ -87,7 +78,7 @@ export default function PaymentsView() {
                   <div className="payment-card-title">{p.creator}</div>
                   <div className="payment-card-sub">{p.campaign}</div>
                 </div>
-                <div className={`escrow-badge ${badgeClass(p.status)}`}>{p.statusLabel}</div>
+                <div className={`escrow-badge ${badgeClass(p.status)}`}>{p.status_label}</div>
               </div>
 
               <div className="payment-amount">${p.amount.toLocaleString()}</div>

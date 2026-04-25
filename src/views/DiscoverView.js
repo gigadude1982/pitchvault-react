@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useToast } from '../ToastContext';
-import { CREATORS } from '../data/creators';
+import { db } from '../services/db';
 
 const NICHE_GROUPS = [
   { label: 'All', niches: [] },
@@ -27,16 +27,20 @@ const PLATFORMS = ['All', 'TikTok', 'Instagram', 'YouTube'];
 export default function DiscoverView() {
   const navigate = useNavigate();
   const showToast = useToast();
+  const [creators, setCreators] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [activeGroup, setActiveGroup] = useState(0);
   const [activeRate, setActiveRate] = useState(0);
   const [activePlatform, setActivePlatform] = useState(0);
-  const [saved, setSaved] = useState(() => {
-    const s = {};
-    CREATORS.forEach((c) => {
-      s[c.id] = c.saved;
+  const [saved, setSaved] = useState({});
+
+  useEffect(() => {
+    db.getCreators().then((data) => {
+      setCreators(data);
+      setSaved(Object.fromEntries(data.map((c) => [c.id, c.saved])));
+      setLoading(false);
     });
-    return s;
-  });
+  }, []);
 
   const toggleSave = (e, id, name) => {
     e.stopPropagation();
@@ -49,14 +53,30 @@ export default function DiscoverView() {
 
   const group = NICHE_GROUPS[activeGroup];
   const rateFilter = RATE_FILTERS[activeRate];
-  const filtered = CREATORS.filter((c) => {
+  const filtered = creators.filter((c) => {
     const matchesGroup =
       group.niches.length === 0 ||
       group.niches.includes(c.niche) ||
-      c.tags.some((t) => group.niches.includes(t));
-    const matchesRate = c.rateNum >= rateFilter.min && c.rateNum <= rateFilter.max;
+      (c.tags || []).some((t) => group.niches.includes(t));
+    const matchesRate = c.rate_num >= rateFilter.min && c.rate_num <= rateFilter.max;
     return matchesGroup && matchesRate;
   });
+
+  if (loading)
+    return (
+      <div
+        className="view"
+        style={{
+          textAlign: 'center',
+          padding: '60px 0',
+          fontFamily: 'var(--cinzel)',
+          color: 'var(--text-muted)',
+          letterSpacing: 3,
+        }}
+      >
+        LOADING...
+      </div>
+    );
 
   return (
     <div className="view">
@@ -64,7 +84,7 @@ export default function DiscoverView() {
         <div>
           <div className="section-header">Creator Vault</div>
           <div className="feed-count">
-            {filtered.length} of {CREATORS.length} creators shown
+            {filtered.length} of {creators.length} creators shown
           </div>
         </div>
       </div>
@@ -112,7 +132,9 @@ export default function DiscoverView() {
       {group.niches.length > 0 && (
         <div className="filter-row" style={{ marginTop: 8 }}>
           {group.niches.map((n) => {
-            const count = CREATORS.filter((c) => c.niche === n || c.tags.includes(n)).length;
+            const count = creators.filter(
+              (c) => c.niche === n || (c.tags || []).includes(n)
+            ).length;
             return (
               <span key={n} className="niche-sub-tag">
                 {n} <span className="niche-sub-count">{count}</span>
@@ -148,8 +170,10 @@ export default function DiscoverView() {
               >
                 <div>
                   <span className="niche-tag primary">{c.niche}</span>
-                  {c.tags.includes('Faith-Based') && <span className="niche-tag faith">Faith</span>}
-                  {c.tags
+                  {(c.tags || []).includes('Faith-Based') && (
+                    <span className="niche-tag faith">Faith</span>
+                  )}
+                  {(c.tags || [])
                     .filter((t) => t !== 'Faith-Based')
                     .slice(0, 2)
                     .map((t) => (
@@ -180,7 +204,7 @@ export default function DiscoverView() {
                     fontFamily: 'var(--cinzel)',
                   }}
                 >
-                  {c.rating.toFixed(1)} · {c.completed} deals
+                  {Number(c.rating).toFixed(1)} · {c.completed} deals
                 </span>
               </div>
               {c.badges && c.badges.length > 0 && (

@@ -1,43 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from '@tanstack/react-router';
 import { useToast } from '../ToastContext';
+import { db } from '../services/db';
 
 const KPI = [
   { label: 'Active Campaigns', value: '3' },
   { label: 'Total Spend', value: '$2,750' },
   { label: 'Completed Deals', value: '18' },
   { label: 'Avg Engagement', value: '6.2%' },
-];
-
-const MOCK_CAMPAIGNS = [
-  {
-    id: 1,
-    title: 'Summer Skincare Launch',
-    budget: '$1,200',
-    status: 'Active',
-    applied: 8,
-    selected: 2,
-    deadline: 'Apr 25, 2026',
-  },
-  {
-    id: 2,
-    title: 'Fitness App Promo',
-    budget: '$800',
-    status: 'In Progress',
-    applied: 5,
-    selected: 3,
-    deadline: 'Apr 18, 2026',
-  },
-  {
-    id: 3,
-    title: 'Faith Lifestyle Series',
-    budget: '$500',
-    status: 'Active',
-    applied: 12,
-    selected: 1,
-    deadline: 'May 2, 2026',
-  },
 ];
 
 function OptionGroup({ options, cols = 3, selected, onSelect }) {
@@ -67,7 +38,8 @@ export default function CampaignView() {
   const showToast = useToast();
   const navigate = useNavigate();
   const [showForm, setShowForm] = useState(false);
-  const [campaigns, setCampaigns] = useState(MOCK_CAMPAIGNS);
+  const [campaigns, setCampaigns] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [goal, setGoal] = useState('Awareness');
   const [deliverable, setDeliverable] = useState('TikTok Video');
   const [contentStyle, setContentStyle] = useState('Testimonial');
@@ -75,6 +47,13 @@ export default function CampaignView() {
   const [timeline, setTimeline] = useState('3–5 Days');
   const [budgetAmount, setBudgetAmount] = useState('');
   const [budgetError, setBudgetError] = useState(false);
+
+  useEffect(() => {
+    db.getCampaigns().then((data) => {
+      setCampaigns(data);
+      setLoading(false);
+    });
+  }, []);
 
   const handleSubmit = () => {
     if (budget === 'Fixed' && (parseFloat(budgetAmount) < 250 || !budgetAmount)) {
@@ -89,14 +68,30 @@ export default function CampaignView() {
   const pauseCampaign = (id) => {
     setCampaigns((prev) => prev.map((c) => (c.id === id ? { ...c, status: 'Paused' } : c)));
     showToast('Campaign paused');
+    db.pauseCampaign(id);
   };
+
+  if (loading)
+    return (
+      <div
+        className="view"
+        style={{
+          textAlign: 'center',
+          padding: '60px 0',
+          fontFamily: 'var(--cinzel)',
+          color: 'var(--text-muted)',
+          letterSpacing: 3,
+        }}
+      >
+        LOADING...
+      </div>
+    );
 
   return (
     <div className="view">
       <div className="section-header">Brands Dashboard</div>
       <div className="section-sub">Manage campaigns, track spend, and discover creators.</div>
 
-      {/* Quick Action Bar */}
       <div className="quick-action-bar">
         <button className="btn-gold qab-primary" onClick={() => setShowForm((v) => !v)}>
           {showForm ? '✕ Close' : '+ Create Campaign'}
@@ -110,7 +105,6 @@ export default function CampaignView() {
         <button className="btn-outline qab-btn">Saved Creators</button>
       </div>
 
-      {/* KPI Strip */}
       <div className="kpi-strip">
         {KPI.map((k) => (
           <div className="kpi-card" key={k.label}>
@@ -120,7 +114,6 @@ export default function CampaignView() {
         ))}
       </div>
 
-      {/* Active Campaigns */}
       {!showForm && (
         <div>
           <div className="section-label-row">Active Campaigns</div>
@@ -170,7 +163,6 @@ export default function CampaignView() {
         </div>
       )}
 
-      {/* Create Campaign Form */}
       {showForm && (
         <div className="panel">
           <div className="form-section">
@@ -231,7 +223,6 @@ export default function CampaignView() {
                 setBudget(v);
                 setBudgetError(false);
               }}
-              style={{ marginBottom: 8 }}
             />
             {budget === 'Fixed' && (
               <div style={{ marginTop: 8 }}>

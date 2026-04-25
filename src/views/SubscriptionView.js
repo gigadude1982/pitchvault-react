@@ -1,28 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useToast } from '../ToastContext';
-
-const FEATURES = [
-  { label: 'Platform access & creator profile', monthly: true, annual: true },
-  { label: 'Visibility in brand discovery feed', monthly: true, annual: true },
-  { label: 'Unlimited campaign requests', monthly: true, annual: true },
-  { label: 'In-platform messaging & file delivery', monthly: true, annual: true },
-  { label: 'Earnings dashboard & analytics', monthly: true, annual: true },
-  { label: 'Digital product listings (3 max)', monthly: true, annual: true },
-  { label: 'Unlimited digital product listings', monthly: false, annual: true },
-  { label: 'Priority placement in discovery feed', monthly: false, annual: true },
-  { label: 'Featured creator badge', monthly: false, annual: true },
-  { label: 'Early access to brand campaigns', monthly: false, annual: true },
-  { label: 'Advanced performance analytics', monthly: false, annual: true },
-];
+import { db } from '../services/db';
 
 export default function SubscriptionView() {
   const showToast = useToast();
   const [selected, setSelected] = useState(null);
+  const [features, setFeatures] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    db.getSubscriptionFeatures().then((data) => {
+      setFeatures(data);
+      setLoading(false);
+    });
+  }, []);
 
   const subscribe = (plan) => {
     setSelected(plan);
     showToast(`${plan === 'annual' ? 'Annual' : 'Monthly'} plan activated`);
   };
+
+  if (loading)
+    return (
+      <div
+        className="view"
+        style={{
+          textAlign: 'center',
+          padding: '60px 0',
+          fontFamily: 'var(--cinzel)',
+          color: 'var(--text-muted)',
+          letterSpacing: 3,
+        }}
+      >
+        LOADING...
+      </div>
+    );
 
   return (
     <div className="view">
@@ -51,7 +63,7 @@ export default function SubscriptionView() {
           </div>
 
           <div className="pricing-features">
-            {FEATURES.map((f) => (
+            {features.map((f) => (
               <div className={`pricing-feature${!f.monthly ? ' unavailable' : ''}`} key={f.label}>
                 <span className="feature-check">{f.monthly ? '◆' : '—'}</span>
                 {f.label}
@@ -81,7 +93,7 @@ export default function SubscriptionView() {
           </div>
 
           <div className="pricing-features">
-            {FEATURES.map((f) => (
+            {features.map((f) => (
               <div className="pricing-feature" key={f.label}>
                 <span className="feature-check">◆</span>
                 {f.label}

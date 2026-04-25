@@ -1,125 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useToast } from '../ToastContext';
-
-const PRODUCTS = [
-  {
-    id: 0,
-    title: 'Cinematic LUT Pack Vol. 1',
-    creator: 'Jordan Reeves',
-    handle: '@jordanreeves',
-    category: 'Presets',
-    tags: ['Video', 'Cinematic'],
-    emoji: '🎬',
-    bg: '#1a1208',
-    price: 29,
-    sales: 312,
-    commission: 30,
-  },
-  {
-    id: 1,
-    title: 'Content Creator OS',
-    creator: 'Maya Chen',
-    handle: '@mayachen.creates',
-    category: 'Templates',
-    tags: ['Notion', 'Productivity'],
-    emoji: '📋',
-    bg: '#10101a',
-    price: 49,
-    sales: 841,
-    commission: 25,
-  },
-  {
-    id: 2,
-    title: 'Faith-Led Brand Bible',
-    creator: 'Caleb St. James',
-    handle: '@calebstjames',
-    category: 'E-Book',
-    tags: ['Branding', 'Faith'],
-    emoji: '📖',
-    bg: '#0e1410',
-    price: 19,
-    sales: 204,
-    commission: 40,
-  },
-  {
-    id: 3,
-    title: 'SaaS Launch Playbook',
-    creator: 'Sofia Voss',
-    handle: '@sofiavoss',
-    category: 'Course',
-    tags: ['Tech', 'Strategy'],
-    emoji: '🚀',
-    bg: '#161208',
-    price: 97,
-    sales: 128,
-    commission: 35,
-  },
-  {
-    id: 4,
-    title: 'Wellness Brand Kit',
-    creator: 'Priya Nair',
-    handle: '@priyanair.co',
-    category: 'Templates',
-    tags: ['Canva', 'Wellness'],
-    emoji: '🌿',
-    bg: '#0c1210',
-    price: 39,
-    sales: 567,
-    commission: 30,
-  },
-  {
-    id: 5,
-    title: 'Raw Reels Preset Bundle',
-    creator: 'Marcus Obi',
-    handle: '@marcobi',
-    category: 'Presets',
-    tags: ['Mobile', 'Raw'],
-    emoji: '📱',
-    bg: '#180e08',
-    price: 24,
-    sales: 430,
-    commission: 30,
-  },
-  {
-    id: 6,
-    title: 'Peaceful Living Guide',
-    creator: 'Leila Karimi',
-    handle: '@leilakarimi',
-    category: 'E-Book',
-    tags: ['Lifestyle', 'Faith'],
-    emoji: '🌙',
-    bg: '#101018',
-    price: 15,
-    sales: 189,
-    commission: 40,
-  },
-  {
-    id: 7,
-    title: 'Dev Portfolio Masterclass',
-    creator: 'Dev Sharma',
-    handle: '@devsharma.dev',
-    category: 'Course',
-    tags: ['Tech', 'Career'],
-    emoji: '⚡',
-    bg: '#141008',
-    price: 79,
-    sales: 93,
-    commission: 35,
-  },
-];
+import { db } from '../services/db';
 
 const FILTERS = ['All', 'Templates', 'Presets', 'E-Book', 'Course'];
-
 const LIST_CATEGORIES = ['Templates', 'Presets', 'E-Book', 'Course', 'Music', 'Tools'];
 
 export default function ProductsView() {
   const showToast = useToast();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('All');
   const [search, setSearch] = useState('');
-  const [saved, setSaved] = useState(() => Object.fromEntries(PRODUCTS.map((p) => [p.id, false])));
+  const [saved, setSaved] = useState({});
   const [showListForm, setShowListForm] = useState(false);
   const [listCategory, setListCategory] = useState('Templates');
   const [listCommission, setListCommission] = useState('30');
+
+  useEffect(() => {
+    db.getProducts().then((data) => {
+      setProducts(data);
+      setSaved(Object.fromEntries(data.map((p) => [p.id, false])));
+      setLoading(false);
+    });
+  }, []);
 
   const toggleSave = (e, id, title) => {
     e.stopPropagation();
@@ -141,17 +44,33 @@ export default function ProductsView() {
     setShowListForm(false);
   };
 
-  const filtered = PRODUCTS.filter((p) => {
+  const filtered = products.filter((p) => {
     const matchesFilter = activeFilter === 'All' || p.category === activeFilter;
     const matchesSearch =
       search === '' ||
       p.title.toLowerCase().includes(search.toLowerCase()) ||
       p.creator.toLowerCase().includes(search.toLowerCase()) ||
-      p.tags.some((t) => t.toLowerCase().includes(search.toLowerCase()));
+      (p.tags || []).some((t) => t.toLowerCase().includes(search.toLowerCase()));
     return matchesFilter && matchesSearch;
   });
 
-  const totalRevenue = PRODUCTS.reduce((s, p) => s + p.price * p.sales * 0.1, 0);
+  if (loading)
+    return (
+      <div
+        className="view"
+        style={{
+          textAlign: 'center',
+          padding: '60px 0',
+          fontFamily: 'var(--cinzel)',
+          color: 'var(--text-muted)',
+          letterSpacing: 3,
+        }}
+      >
+        LOADING...
+      </div>
+    );
+
+  const totalRevenue = products.reduce((s, p) => s + p.price * p.sales * 0.1, 0);
 
   return (
     <div className="view">
@@ -159,7 +78,7 @@ export default function ProductsView() {
         <div>
           <div className="section-header">Digital Marketplace</div>
           <div className="feed-count">
-            {PRODUCTS.length} products available — earn affiliate commissions on every sale
+            {products.length} products available — earn affiliate commissions on every sale
           </div>
         </div>
         <button className="btn-gold" onClick={() => setShowListForm((v) => !v)}>
@@ -278,7 +197,7 @@ export default function ProductsView() {
                 }}
               >
                 <span className="niche-tag primary">{p.category}</span>
-                {p.tags.map((t) => (
+                {(p.tags || []).map((t) => (
                   <span className="niche-tag" key={t}>
                     {t}
                   </span>
@@ -320,15 +239,17 @@ export default function ProductsView() {
         </div>
         <div style={{ display: 'flex', gap: 32, marginTop: 16 }}>
           {[
-            { label: 'Total Products', value: PRODUCTS.length },
+            { label: 'Total Products', value: products.length },
             {
               label: 'Total Sales',
-              value: PRODUCTS.reduce((s, p) => s + p.sales, 0).toLocaleString(),
+              value: products.reduce((s, p) => s + p.sales, 0).toLocaleString(),
             },
             { label: 'Platform Revenue', value: `$${Math.round(totalRevenue).toLocaleString()}` },
             {
               label: 'Avg Commission',
-              value: `${Math.round(PRODUCTS.reduce((s, p) => s + p.commission, 0) / PRODUCTS.length)}%`,
+              value: products.length
+                ? `${Math.round(products.reduce((s, p) => s + p.commission, 0) / products.length)}%`
+                : '—',
             },
           ].map((stat) => (
             <div key={stat.label}>

@@ -1,73 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useToast } from '../ToastContext';
-
-const PROFILE = {
-  name: 'Jordan Reeves',
-  handle: '@jordanreeves',
-  niche: 'Fitness',
-  tags: ['UGC', 'Cinematic'],
-  emoji: '🏋️',
-  reach: '248K',
-  engagement: '6.4%',
-  completed: 14,
-};
-
-const DEALS = [
-  {
-    id: 0,
-    brand: 'Apex Nutrition',
-    campaign: 'Summer Shred Series',
-    deliverable: 'TikTok Video',
-    budget: 1800,
-    deadline: 'Jun 12',
-    status: 'active',
-  },
-  {
-    id: 1,
-    brand: 'Luxe Apparel Co.',
-    campaign: 'Fall Drop Launch',
-    deliverable: 'Reel + UGC Ad',
-    budget: 2400,
-    deadline: 'Jun 18',
-    status: 'pending',
-  },
-  {
-    id: 2,
-    brand: 'FocusFlow',
-    campaign: 'Back to Grind',
-    deliverable: 'Product Photos',
-    budget: 650,
-    deadline: 'Jun 22',
-    status: 'active',
-  },
-];
-
-const EARNINGS = [
-  { month: 'Mar', amount: 2100 },
-  { month: 'Apr', amount: 3400 },
-  { month: 'May', amount: 2850 },
-  { month: 'Jun', amount: 4850 },
-];
-
-const maxEarning = Math.max(...EARNINGS.map((e) => e.amount));
+import { db } from '../services/db';
 
 export default function CreatorView() {
   const showToast = useToast();
-  const [deals, setDeals] = useState(DEALS);
+  const [profile, setProfile] = useState(null);
+  const [deals, setDeals] = useState([]);
+  const [earnings, setEarnings] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([db.getCreatorProfile(), db.getDeals(), db.getCreatorEarnings()]).then(
+      ([p, d, e]) => {
+        setProfile(p);
+        setDeals(d);
+        setEarnings(e);
+        setLoading(false);
+      }
+    );
+  }, []);
 
   const accept = (id) => {
     setDeals((prev) => prev.map((d) => (d.id === id ? { ...d, status: 'active' } : d)));
     const deal = deals.find((d) => d.id === id);
     showToast(`Deal accepted with ${deal.brand}`);
+    db.acceptDeal(id);
   };
 
   const decline = (id) => {
     setDeals((prev) => prev.map((d) => (d.id === id ? { ...d, status: 'declined' } : d)));
     const deal = deals.find((d) => d.id === id);
     showToast(`Deal declined — ${deal.brand} will be notified`);
+    db.declineDeal(id);
   };
 
-  const totalEarned = EARNINGS.reduce((s, e) => s + e.amount, 0);
+  if (loading || !profile)
+    return (
+      <div
+        className="view"
+        style={{
+          textAlign: 'center',
+          padding: '60px 0',
+          fontFamily: 'var(--cinzel)',
+          color: 'var(--text-muted)',
+          letterSpacing: 3,
+        }}
+      >
+        LOADING...
+      </div>
+    );
+
+  const maxEarning = Math.max(...earnings.map((e) => e.amount), 1);
+  const totalEarned = earnings.reduce((s, e) => s + e.amount, 0);
   const inEscrow = deals.filter((d) => d.status === 'active').reduce((s, d) => s + d.budget, 0);
 
   return (
@@ -81,18 +65,18 @@ export default function CreatorView() {
           className="creator-thumb"
           style={{ width: 80, height: 80, minWidth: 80, background: '#1a1208', borderRadius: 4 }}
         >
-          <span style={{ fontSize: 54 }}>{PROFILE.emoji}</span>
+          <span style={{ fontSize: 54 }}>{profile.emoji}</span>
         </div>
         <div style={{ flex: 1 }}>
           <div className="creator-name" style={{ fontSize: 27, marginBottom: 4 }}>
-            {PROFILE.name}
+            {profile.name}
           </div>
           <div className="creator-handle" style={{ marginBottom: 10 }}>
-            {PROFILE.handle}
+            {profile.handle}
           </div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            <span className="niche-tag primary">{PROFILE.niche}</span>
-            {PROFILE.tags.map((t) => (
+            <span className="niche-tag primary">{profile.niche}</span>
+            {(profile.tags || []).map((t) => (
               <span className="niche-tag" key={t}>
                 {t}
               </span>
@@ -101,9 +85,9 @@ export default function CreatorView() {
         </div>
         <div style={{ display: 'flex', gap: 32, textAlign: 'center' }}>
           {[
-            { label: 'Reach', value: PROFILE.reach },
-            { label: 'Engagement', value: PROFILE.engagement },
-            { label: 'Deals Done', value: PROFILE.completed },
+            { label: 'Reach', value: profile.reach },
+            { label: 'Engagement', value: profile.engagement },
+            { label: 'Deals Done', value: profile.completed },
           ].map((s) => (
             <div key={s.label}>
               <div
@@ -163,22 +147,21 @@ export default function CreatorView() {
               lineHeight: 1,
             }}
           >
-            7
+            {profile.streak}
           </div>
           <div style={{ fontSize: 13.5, color: 'var(--text-muted)' }}>
             consecutive deals completed on time
           </div>
           <div style={{ display: 'flex', gap: 4, marginTop: 4 }}>
-            {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+            {Array.from({ length: 10 }).map((_, i) => (
               <div
                 key={i}
-                style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--gold)' }}
-              />
-            ))}
-            {[8, 9, 10].map((i) => (
-              <div
-                key={i}
-                style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--border)' }}
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: '50%',
+                  background: i < profile.streak ? 'var(--gold)' : 'var(--border)',
+                }}
               />
             ))}
           </div>
@@ -191,7 +174,7 @@ export default function CreatorView() {
               marginTop: 2,
             }}
           >
-            3 more for Gold streak
+            {10 - profile.streak} more for Gold streak
           </div>
         </div>
 
@@ -219,7 +202,7 @@ export default function CreatorView() {
               lineHeight: 1.2,
             }}
           >
-            14 / 25
+            {profile.milestone} / {profile.milestone_target}
           </div>
           <div style={{ fontSize: 13.5, color: 'var(--text-muted)', marginBottom: 6 }}>
             deals to Top Creator status
@@ -234,7 +217,7 @@ export default function CreatorView() {
           >
             <div
               style={{
-                width: `${(14 / 25) * 100}%`,
+                width: `${(profile.milestone / profile.milestone_target) * 100}%`,
                 height: '100%',
                 background: 'linear-gradient(90deg, var(--gold-dim), var(--gold))',
               }}
@@ -249,7 +232,7 @@ export default function CreatorView() {
               marginTop: 2,
             }}
           >
-            56% complete
+            {Math.round((profile.milestone / profile.milestone_target) * 100)}% complete
           </div>
         </div>
 
@@ -277,7 +260,7 @@ export default function CreatorView() {
               lineHeight: 1,
             }}
           >
-            #12
+            #{profile.leaderboard_rank}
           </div>
           <div style={{ fontSize: 13.5, color: 'var(--text-muted)' }}>
             out of 284 active creators
@@ -324,7 +307,7 @@ export default function CreatorView() {
                 <div className="payment-card-sub">{d.campaign}</div>
               </div>
               <div
-                className={`escrow-badge ${d.status === 'active' ? 'badge-held' : d.status === 'declined' ? 'badge-pending' : 'badge-pending'}`}
+                className={`escrow-badge ${d.status === 'active' ? 'badge-held' : 'badge-pending'}`}
               >
                 {d.status === 'active'
                   ? 'In Progress'
@@ -380,7 +363,6 @@ export default function CreatorView() {
       {/* Earnings */}
       <div className="revenue-panel" style={{ marginTop: 24 }}>
         <div className="chart-title">Earnings Overview</div>
-
         <div style={{ display: 'flex', gap: 24, marginBottom: 20 }}>
           <div>
             <div
@@ -433,7 +415,7 @@ export default function CreatorView() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, height: 80 }}>
-          {EARNINGS.map((e) => (
+          {earnings.map((e) => (
             <div
               key={e.month}
               style={{
