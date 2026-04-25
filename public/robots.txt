@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+Disallow: /auth
+
+Sitemap: https://pitchvault.com/sitemap.xml
