@@ -3,5 +3,11 @@ import ReactDOM from 'react-dom/client';
 import { RouterProvider } from '@tanstack/react-router';
 import { router } from './router';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<RouterProvider router={router} />);
+const rootElement = document.getElementById('root');
+
+if (rootElement.hasChildNodes()) {
+  ReactDOM.hydrateRoot(rootElement, <RouterProvider router={router} />);
+} else {
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(<RouterProvider router={router} />);
+}

@@ -19,7 +19,16 @@
     "lint:fix": "eslint src --ext .js,.jsx --fix",
     "format": "prettier --write src",
     "verify": "npm run build && npm run test -- --watchAll=false && npm run lint",
-    "ci-cd": "npm run build && npm run test -- --watchAll=false && npm run lint"
+    "ci-cd": "npm run build && npm run test -- --watchAll=false && npm run lint",
+    "postbuild": "node scripts/postbuild.js"
+  },
+  "reactSnap": {
+    "source": "build",
+    "puppeteerArgs": [
+      "--no-sandbox",
+      "--disable-setuid-sandbox"
+    ],
+    "inlineCss": false
   },
   "browserslist": {
     "production": [
@@ -39,6 +48,8 @@
     "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
-    "prettier": "^3.8.1"
+    "prettier": "^3.8.1",
+    "puppeteer": "^24.41.0",
+    "react-snap": "^1.23.0"
   }
 }
