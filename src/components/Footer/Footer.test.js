@@ -2,9 +2,11 @@ import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Footer from './Footer';
 
-// Mock the CSS module with the keys the component actually uses
+// Mock the CSS module with all keys the component actually uses
 jest.mock('./Footer.module.css', () => ({
   footer: 'footer',
+  logo: 'logo',
+  version: 'version',
   tagline: 'tagline',
 }));
 
@@ -14,6 +16,59 @@ const defaultProps = {
 };
 
 describe('Footer', () => {
+  describe('Shield image removal', () => {
+    it('renders no <img> element whose src contains "shield"', () => {
+      const { container } = render(<Footer {...defaultProps} />);
+      const allImages = container.querySelectorAll('img');
+      allImages.forEach((img) => {
+        expect(img.getAttribute('src')).not.toMatch(/shield/i);
+      });
+    });
+
+    it('renders no element with an alt attribute containing "shield"', () => {
+      const { container } = render(<Footer {...defaultProps} />);
+      const allImages = container.querySelectorAll('img');
+      allImages.forEach((img) => {
+        const alt = img.getAttribute('alt') || '';
+        expect(alt).not.toMatch(/shield/i);
+      });
+    });
+
+    it('renders no element with a className containing "shield"', () => {
+      const { container } = render(<Footer {...defaultProps} />);
+      const allElements = container.querySelectorAll('*');
+      allElements.forEach((el) => {
+        expect(el.className).not.toMatch(/shield/i);
+      });
+    });
+
+    it('contains no broken image references — every img src is non-empty and does not reference shield', () => {
+      const { container } = render(<Footer {...defaultProps} />);
+      const allImages = container.querySelectorAll('img');
+      allImages.forEach((img) => {
+        const src = img.getAttribute('src') || '';
+        expect(src.length).toBeGreaterThan(0);
+        expect(src).not.toMatch(/shield/i);
+      });
+    });
+  });
+
+  describe('Footer renders without errors after shield removal', () => {
+    it('renders the footer container without throwing', () => {
+      expect(() => render(<Footer {...defaultProps} />)).not.toThrow();
+    });
+
+    it('renders a semantic <footer> element (contentinfo landmark)', () => {
+      render(<Footer {...defaultProps} />);
+      expect(screen.getByRole('contentinfo')).toBeInTheDocument();
+    });
+
+    it('footer element carries the footer CSS module class', () => {
+      const { container } = render(<Footer {...defaultProps} />);
+      expect(container.querySelector('.footer')).not.toBeNull();
+    });
+  });
+
   describe('Branding text rendering', () => {
     it('renders the branding text "A GigaCorp production"', () => {
       render(<Footer {...defaultProps} />);
@@ -25,20 +80,6 @@ describe('Footer', () => {
       const brandingEl = container.querySelector('.tagline');
       expect(brandingEl).not.toBeNull();
       expect(brandingEl).toHaveTextContent('A GigaCorp production');
-    });
-  });
-
-  describe('Semantic structure', () => {
-    it('renders a semantic <footer> element', () => {
-      render(<Footer {...defaultProps} />);
-      const footerEl = screen.getByRole('contentinfo');
-      expect(footerEl).toBeInTheDocument();
-    });
-
-    it('footer element carries the footer CSS module class', () => {
-      const { container } = render(<Footer {...defaultProps} />);
-      const footerEl = container.querySelector('.footer');
-      expect(footerEl).not.toBeNull();
     });
   });
 
@@ -62,7 +103,7 @@ describe('Footer', () => {
     ];
 
     viewports.forEach(({ label, width }) => {
-      it(`renders branding text correctly at ${label} viewport width`, () => {
+      it(`renders correctly at ${label} viewport width with no shield images`, () => {
         Object.defineProperty(window, 'innerWidth', {
           writable: true,
           configurable: true,
@@ -70,15 +111,21 @@ describe('Footer', () => {
         });
         window.dispatchEvent(new Event('resize'));
 
-        render(<Footer {...defaultProps} />);
+        const { container } = render(<Footer {...defaultProps} />);
+
         expect(screen.getByText(/A GigaCorp production/i)).toBeInTheDocument();
         expect(screen.getByRole('contentinfo')).toBeInTheDocument();
+
+        const allImages = container.querySelectorAll('img');
+        allImages.forEach((img) => {
+          expect(img.getAttribute('src')).not.toMatch(/shield/i);
+        });
       });
     });
   });
 
   describe('Snapshot regression', () => {
-    it('matches the snapshot', () => {
+    it('matches the snapshot (shield-free footer)', () => {
       const { container } = render(<Footer {...defaultProps} />);
       expect(container.firstChild).toMatchSnapshot();
     });
