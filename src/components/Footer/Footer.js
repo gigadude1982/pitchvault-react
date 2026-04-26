@@ -4,7 +4,6 @@ import styles from './Footer.module.css';
 export default function Footer({ version, year }) {
   return (
     <footer className={styles.footer}>
-      <img src="/logo.png" alt="PitchVault" className={styles.logo} />
       <span className={styles.version}>
         v{version} &nbsp;&middot;&nbsp; &copy; {year} PitchVault
       </span>
