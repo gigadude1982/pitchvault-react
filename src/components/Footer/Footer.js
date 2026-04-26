@@ -8,7 +8,11 @@ export default function Footer({ version, year }) {
         v{version} &nbsp;&middot;&nbsp; &copy; {year} PitchVault
       </span>
       <span className={styles.tagline} data-testid="footer-tagline">
-        A GigaCorp production
+        A{' '}
+        <a href="https://www.gigacorp.co" target="_blank" rel="noopener noreferrer">
+          GigaCorp
+        </a>{' '}
+        production
       </span>
     </footer>
   );
