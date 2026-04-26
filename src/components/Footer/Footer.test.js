@@ -124,8 +124,49 @@ describe('Footer', () => {
     });
   });
 
+  describe('GigaCorp hyperlink', () => {
+    it('renders "GigaCorp" as a clickable anchor element', () => {
+      render(<Footer {...defaultProps} />);
+      const link = screen.getByRole('link', { name: /GigaCorp/i });
+      expect(link).toBeInTheDocument();
+    });
+
+    it('anchor href points to https://www.gigacorp.co', () => {
+      render(<Footer {...defaultProps} />);
+      const link = screen.getByRole('link', { name: /GigaCorp/i });
+      expect(link).toHaveAttribute('href', 'https://www.gigacorp.co');
+    });
+
+    it('anchor target is "_blank" so the link opens in a new tab', () => {
+      render(<Footer {...defaultProps} />);
+      const link = screen.getByRole('link', { name: /GigaCorp/i });
+      expect(link).toHaveAttribute('target', '_blank');
+    });
+
+    it('anchor rel is "noopener noreferrer" for security', () => {
+      render(<Footer {...defaultProps} />);
+      const link = screen.getByRole('link', { name: /GigaCorp/i });
+      expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+    });
+
+    it('GigaCorp link is contained within the footer tagline span', () => {
+      const { container } = render(<Footer {...defaultProps} />);
+      const taglineEl = container.querySelector('.tagline');
+      expect(taglineEl).not.toBeNull();
+      const linkInsideTagline = taglineEl.querySelector('a');
+      expect(linkInsideTagline).not.toBeNull();
+      expect(linkInsideTagline).toHaveTextContent('GigaCorp');
+    });
+
+    it('the rest of the tagline text is preserved alongside the link', () => {
+      render(<Footer {...defaultProps} />);
+      const tagline = screen.getByTestId('footer-tagline');
+      expect(tagline).toHaveTextContent('A GigaCorp production');
+    });
+  });
+
   describe('Snapshot regression', () => {
-    it('matches the snapshot (shield-free footer)', () => {
+    it('matches the snapshot (shield-free footer with GigaCorp hyperlink)', () => {
       const { container } = render(<Footer {...defaultProps} />);
       expect(container.firstChild).toMatchSnapshot();
     });
