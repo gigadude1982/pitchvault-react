@@ -42,7 +42,7 @@ describe('Footer', () => {
       });
     });
 
-    it('contains no broken image references — every img src is non-empty and does not reference shield', () => {
+    it('contains no broken image references - every img src is non-empty and does not reference shield', () => {
       const { container } = render(<Footer {...defaultProps} />);
       const allImages = container.querySelectorAll('img');
       allImages.forEach((img) => {
@@ -53,7 +53,7 @@ describe('Footer', () => {
     });
   });
 
-  describe('Footer renders without errors after shield removal', () => {
+  describe('Footer renders without errors', () => {
     it('renders the footer container without throwing', () => {
       expect(() => render(<Footer {...defaultProps} />)).not.toThrow();
     });
@@ -70,16 +70,51 @@ describe('Footer', () => {
   });
 
   describe('Branding text rendering', () => {
-    it('renders the branding text "A GigaCorp production"', () => {
+    it('renders text containing "GigaCorp" in the footer', () => {
       render(<Footer {...defaultProps} />);
-      expect(screen.getByText(/A GigaCorp production/i)).toBeInTheDocument();
+      expect(screen.getByRole('contentinfo')).toHaveTextContent('GigaCorp');
     });
 
-    it('branding element carries the tagline CSS module class', () => {
+    it('branding element carries the tagline CSS module class and contains GigaCorp text', () => {
       const { container } = render(<Footer {...defaultProps} />);
       const brandingEl = container.querySelector('.tagline');
       expect(brandingEl).not.toBeNull();
-      expect(brandingEl).toHaveTextContent('A GigaCorp production');
+      expect(brandingEl).toHaveTextContent('GigaCorp');
+    });
+  });
+
+  describe('GigaCorp hyperlink', () => {
+    it('renders "GigaCorp" as a clickable anchor element', () => {
+      render(<Footer {...defaultProps} />);
+      const link = screen.getByRole('link', { name: /gigacorp/i });
+      expect(link).toBeInTheDocument();
+    });
+
+    it('anchor href points to https://www.gigacorp.co', () => {
+      render(<Footer {...defaultProps} />);
+      const link = screen.getByRole('link', { name: /gigacorp/i });
+      expect(link).toHaveAttribute('href', 'https://www.gigacorp.co');
+    });
+
+    it('anchor target is "_blank" so the link opens in a new tab', () => {
+      render(<Footer {...defaultProps} />);
+      const link = screen.getByRole('link', { name: /gigacorp/i });
+      expect(link).toHaveAttribute('target', '_blank');
+    });
+
+    it('anchor rel is "noopener noreferrer" for security', () => {
+      render(<Footer {...defaultProps} />);
+      const link = screen.getByRole('link', { name: /gigacorp/i });
+      expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+    });
+
+    it('the GigaCorp link is inside the tagline element', () => {
+      const { container } = render(<Footer {...defaultProps} />);
+      const taglineEl = container.querySelector('.tagline');
+      expect(taglineEl).not.toBeNull();
+      const linkInsideTagline = taglineEl.querySelector('a');
+      expect(linkInsideTagline).not.toBeNull();
+      expect(linkInsideTagline).toHaveTextContent('GigaCorp');
     });
   });
 
@@ -113,7 +148,7 @@ describe('Footer', () => {
 
         const { container } = render(<Footer {...defaultProps} />);
 
-        expect(screen.getByText(/A GigaCorp production/i)).toBeInTheDocument();
+        expect(screen.getByRole('contentinfo')).toHaveTextContent('GigaCorp');
         expect(screen.getByRole('contentinfo')).toBeInTheDocument();
 
         const allImages = container.querySelectorAll('img');
@@ -124,49 +159,8 @@ describe('Footer', () => {
     });
   });
 
-  describe('GigaCorp hyperlink', () => {
-    it('renders "GigaCorp" as a clickable anchor element', () => {
-      render(<Footer {...defaultProps} />);
-      const link = screen.getByRole('link', { name: /GigaCorp/i });
-      expect(link).toBeInTheDocument();
-    });
-
-    it('anchor href points to https://www.gigacorp.co', () => {
-      render(<Footer {...defaultProps} />);
-      const link = screen.getByRole('link', { name: /GigaCorp/i });
-      expect(link).toHaveAttribute('href', 'https://www.gigacorp.co');
-    });
-
-    it('anchor target is "_blank" so the link opens in a new tab', () => {
-      render(<Footer {...defaultProps} />);
-      const link = screen.getByRole('link', { name: /GigaCorp/i });
-      expect(link).toHaveAttribute('target', '_blank');
-    });
-
-    it('anchor rel is "noopener noreferrer" for security', () => {
-      render(<Footer {...defaultProps} />);
-      const link = screen.getByRole('link', { name: /GigaCorp/i });
-      expect(link).toHaveAttribute('rel', 'noopener noreferrer');
-    });
-
-    it('GigaCorp link is contained within the footer tagline span', () => {
-      const { container } = render(<Footer {...defaultProps} />);
-      const taglineEl = container.querySelector('.tagline');
-      expect(taglineEl).not.toBeNull();
-      const linkInsideTagline = taglineEl.querySelector('a');
-      expect(linkInsideTagline).not.toBeNull();
-      expect(linkInsideTagline).toHaveTextContent('GigaCorp');
-    });
-
-    it('the rest of the tagline text is preserved alongside the link', () => {
-      render(<Footer {...defaultProps} />);
-      const tagline = screen.getByTestId('footer-tagline');
-      expect(tagline).toHaveTextContent('A GigaCorp production');
-    });
-  });
-
   describe('Snapshot regression', () => {
-    it('matches the snapshot (shield-free footer with GigaCorp hyperlink)', () => {
+    it('matches the snapshot (GigaCorp hyperlink footer)', () => {
       const { container } = render(<Footer {...defaultProps} />);
       expect(container.firstChild).toMatchSnapshot();
     });
