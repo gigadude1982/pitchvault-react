@@ -33,7 +33,9 @@ jobs:
           TICKET: ${{ steps.extract.outputs.ticket }}
         run: |
           # Fetch available transitions
-          TRANSITIONS=$(curl -s -u "$JIRA_USER:$JIRA_API_TOKEN" \
+          TRANSITIONS=$(curl -s \
+            -u "$JIRA_USER:$JIRA_API_TOKEN" \
+            -H "Accept: application/json" \
             -H "Content-Type: application/json" \
             "$JIRA_URL/rest/api/3/issue/$TICKET/transitions")
 
@@ -57,7 +59,7 @@ jobs:
           import sys, json
           data = json.load(sys.stdin)
           for t in data.get('transitions', []):
-              print(f\"  {t['id']}: {t['name']}\")
+              print(f'  {t[\"id\"]}: {t[\"name\"]}')
           "
             exit 1
           fi
