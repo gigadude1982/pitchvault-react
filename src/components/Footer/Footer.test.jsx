@@ -67,6 +67,13 @@ describe('Footer', () => {
       const { container } = render(<Footer {...defaultProps} />);
       expect(container.querySelector('.footer')).not.toBeNull();
     });
+
+    it('footer element has the CSS module class that applies the gold background (#c9a84c)', () => {
+      const { container } = render(<Footer {...defaultProps} />);
+      const footerEl = container.querySelector('footer');
+      expect(footerEl).not.toBeNull();
+      expect(footerEl.classList.contains('footer')).toBe(true);
+    });
   });
 
   describe('Branding text rendering', () => {
