@@ -1,4 +1,4 @@
-name: Transition JIRA to Done on PR merge
+name: Mark JIRA ticket Done on merge
 
 on:
   pull_request:
@@ -10,72 +10,74 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Extract JIRA ticket key from branch name
-        id: extract
+        id: ticket
         run: |
           BRANCH="${{ github.event.pull_request.head.ref }}"
-          echo "branch=$BRANCH"
-          # Match branches like auto/pit-30 or auto/pit-30-20260423
-          if [[ "$BRANCH" =~ ^auto/([A-Za-z]+-[0-9]+) ]]; then
-            TICKET="${BASH_REMATCH[1]^^}"
-            echo "ticket=$TICKET" >> "$GITHUB_OUTPUT"
-            echo "Found ticket: $TICKET"
+          # Match patterns like auto/pit-42, auto/giga-3, feature/PIT-42, etc.
+          KEY=$(echo "$BRANCH" | grep -oiE '[A-Z]+-[0-9]+' | head -1 | tr '[:lower:]' '[:upper:]')
+          if [ -z "$KEY" ]; then
+            echo "No JIRA ticket key found in branch '$BRANCH' — skipping."
+            echo "found=false" >> $GITHUB_OUTPUT
           else
-            echo "Branch '$BRANCH' does not match auto/<ticket> pattern — skipping."
-            echo "ticket=" >> "$GITHUB_OUTPUT"
+            echo "Found ticket key: $KEY"
+            echo "key=$KEY" >> $GITHUB_OUTPUT
+            echo "found=true" >> $GITHUB_OUTPUT
           fi
 
       - name: Transition JIRA ticket to Done
-        if: steps.extract.outputs.ticket != ''
+        if: steps.ticket.outputs.found == 'true'
         env:
           JIRA_URL: ${{ secrets.JIRA_URL }}
-          JIRA_USER: ${{ secrets.JIRA_USER }}
+          JIRA_USERNAME: ${{ secrets.JIRA_USERNAME || secrets.JIRA_USER }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
-          TICKET: ${{ steps.extract.outputs.ticket }}
+          TICKET_KEY: ${{ steps.ticket.outputs.key }}
         run: |
-          # Fetch available transitions
-          TRANSITIONS=$(curl -s \
-            -u "$JIRA_USER:$JIRA_API_TOKEN" \
+          # Validate required secrets — skip gracefully if not configured
+          if [ -z "$JIRA_URL" ] || [ -z "$JIRA_USERNAME" ] || [ -z "$JIRA_API_TOKEN" ]; then
+            echo "::warning::Skipping Jira transition — JIRA_URL, JIRA_USERNAME (or JIRA_USER), and JIRA_API_TOKEN must all be set in this repository's secrets."
+            exit 0
+          fi
+
+          # Get available transitions for the ticket, capturing HTTP status
+          TRANSITIONS_BODY=$(mktemp)
+          TRANSITIONS_STATUS=$(curl -s -w "%{http_code}" -o "$TRANSITIONS_BODY" \
+            -u "$JIRA_USERNAME:$JIRA_API_TOKEN" \
             -H "Accept: application/json" \
-            -H "Content-Type: application/json" \
-            "$JIRA_URL/rest/api/3/issue/$TICKET/transitions")
+            "$JIRA_URL/rest/api/3/issue/$TICKET_KEY/transitions")
 
-          echo "Available transitions: $TRANSITIONS"
+          if [ "$TRANSITIONS_STATUS" != "200" ]; then
+            echo "::warning::Skipping Jira transition — API returned HTTP $TRANSITIONS_STATUS for $TICKET_KEY. Check that JIRA_URL, JIRA_USERNAME, and JIRA_API_TOKEN are correct."
+            exit 0
+          fi
 
-          # Find the ID of the "Done" transition (case-insensitive)
-          TRANSITION_ID=$(echo "$TRANSITIONS" | \
-            python3 -c "
-          import sys, json
-          data = json.load(sys.stdin)
-          for t in data.get('transitions', []):
-              if t['name'].lower() == 'done':
-                  print(t['id'])
-                  break
+          TRANSITION_ID=$(python3 -c "
+          import json, sys
+          data = json.load(open('$TRANSITIONS_BODY'))
+          transitions = data.get('transitions', [])
+          match = next((t for t in transitions if t['name'].lower() == 'done'), None)
+          print(match['id'] if match else '')
           ")
 
           if [ -z "$TRANSITION_ID" ]; then
-            echo "ERROR: Could not find a 'Done' transition for $TICKET"
+            echo "::warning::No 'Done' transition found for $TICKET_KEY"
             echo "Available transitions:"
-            echo "$TRANSITIONS" | python3 -c "
-          import sys, json
-          data = json.load(sys.stdin)
-          for t in data.get('transitions', []):
-              print(f'  {t[\"id\"]}: {t[\"name\"]}')
-          "
-            exit 1
+            python3 -c "
+          import json
+          for t in json.load(open('$TRANSITIONS_BODY')).get('transitions', []):
+              print(f\"  - {t['name']} (id: {t['id']})\")
+            "
+            exit 0
           fi
 
-          echo "Transitioning $TICKET to Done (transition ID: $TRANSITION_ID)"
-
-          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" \
-            -u "$JIRA_USER:$JIRA_API_TOKEN" \
-            -H "Content-Type: application/json" \
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
             -X POST \
-            -d "{\"transition\":{\"id\":\"$TRANSITION_ID\"}}" \
-            "$JIRA_URL/rest/api/3/issue/$TICKET/transitions")
+            -u "$JIRA_USERNAME:$JIRA_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "{\"transition\": {\"id\": \"$TRANSITION_ID\"}}" \
+            "$JIRA_URL/rest/api/3/issue/$TICKET_KEY/transitions")
 
-          if [ "$RESPONSE" = "204" ]; then
-            echo "Successfully transitioned $TICKET to Done."
+          if [ "$HTTP_STATUS" = "204" ]; then
+            echo "✅ $TICKET_KEY transitioned to Done"
           else
-            echo "ERROR: JIRA transition returned HTTP $RESPONSE"
-            exit 1
+            echo "::warning::Failed to transition $TICKET_KEY (HTTP $HTTP_STATUS)"
           fi
