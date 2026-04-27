@@ -166,6 +166,55 @@ describe('Footer', () => {
     });
   });
 
+  describe('Text color is #000000', () => {
+    let styleEl;
+
+    beforeEach(() => {
+      styleEl = document.createElement('style');
+      styleEl.textContent = [
+        '.footer { color: #000000; }',
+        '.version { color: #000000; }',
+        '.tagline { color: #000000; }',
+        '.tagline a { color: #000000; }',
+      ].join('\n');
+      document.head.appendChild(styleEl);
+    });
+
+    afterEach(() => {
+      document.head.removeChild(styleEl);
+    });
+
+    it('footer root element resolves to color rgb(0, 0, 0)', () => {
+      const { container } = render(<Footer {...defaultProps} />);
+      const footerEl = container.querySelector('.footer');
+      expect(footerEl).not.toBeNull();
+      expect(getComputedStyle(footerEl).color).toBe('rgb(0, 0, 0)');
+    });
+
+    it('version element resolves to color rgb(0, 0, 0)', () => {
+      const { container } = render(<Footer {...defaultProps} />);
+      const versionEl = container.querySelector('.version');
+      expect(versionEl).not.toBeNull();
+      expect(getComputedStyle(versionEl).color).toBe('rgb(0, 0, 0)');
+    });
+
+    it('tagline element resolves to color rgb(0, 0, 0)', () => {
+      const { container } = render(<Footer {...defaultProps} />);
+      const taglineEl = container.querySelector('.tagline');
+      expect(taglineEl).not.toBeNull();
+      expect(getComputedStyle(taglineEl).color).toBe('rgb(0, 0, 0)');
+    });
+
+    it('anchor inside tagline resolves to color rgb(0, 0, 0)', () => {
+      const { container } = render(<Footer {...defaultProps} />);
+      const taglineEl = container.querySelector('.tagline');
+      expect(taglineEl).not.toBeNull();
+      const anchorEl = taglineEl.querySelector('a');
+      expect(anchorEl).not.toBeNull();
+      expect(getComputedStyle(anchorEl).color).toBe('rgb(0, 0, 0)');
+    });
+  });
+
   describe('Snapshot regression', () => {
     it('matches the snapshot (GigaCorp hyperlink footer)', () => {
       const { container } = render(<Footer {...defaultProps} />);
