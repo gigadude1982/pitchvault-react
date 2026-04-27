@@ -5,7 +5,8 @@
   "coding_standards": "Plain JavaScript/JSX — no TypeScript. React 18 functional components with hooks only, no class components. Routing via @tanstack/react-router (NOT react-router-dom). ESLint 8 with eslint-plugin-react, eslint-plugin-react-hooks, and eslint-plugin-prettier — lint errors will fail CI. Prettier: semicolons, single quotes, 2-space indent, trailing commas (es5), 100 char line width. PropTypes: every component prop MUST be declared in a PropTypes definition — missing PropTypes will trigger the react/prop-types ESLint rule and fail the build. The repo must declare `prop-types` as a direct application dependency in `package.json` `dependencies`; do not rely on it being provided transitively via devDependencies or tooling packages. Tests use @testing-library/react and @testing-library/jest-dom. Test files live alongside source in src/ (e.g. src/Foo.test.js). Always wrap components that use context hooks in the appropriate Provider in tests. The ci-cd script runs: build, then test --watchAll=false, then lint — all three must pass.",
   "source_dirs": ["src"],
   "test_dirs": ["src"],
-  "max_retries_per_stage": 3,
+  "max_retries_per_stage": 2,
   "human_gate_after_planner": true,
-  "branch_prefix": "auto/"
+  "branch_prefix": "auto/",
+  "write_tests": false
 }
